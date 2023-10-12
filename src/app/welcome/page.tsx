@@ -1,15 +1,18 @@
 "use client";
+import Username from "@/Components/Username";
 import { useAuthStore } from "@/store/zustand";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 type Props = {};
+const DynamicUser = dynamic(() => import("@/Components/Username"), { ssr: false });
 
-const Page = (props: Props) => {
+const Welcome = (props: Props) => {
 	const router = useRouter();
-	const username = useAuthStore().username;
-	if (!username) router.replace("/");
-	console.log(username);
-	return <div>Welcome {username}</div>;
+	const { isLoggedIn } = useAuthStore();
+
+	return <>Loading.. </>;
 };
 
-export default Page;
+export default Welcome;

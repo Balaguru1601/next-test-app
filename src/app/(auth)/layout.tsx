@@ -1,3 +1,4 @@
+"use client";
 import { ReactNode } from "react";
 
 type Props = {
@@ -5,7 +6,7 @@ type Props = {
 };
 
 const layout = (props: Props) => {
-	return <div className="h-screen w-full bg-[#272829]">{props.children}</div>;
+	return <div className="min-h-screen w-full bg-[#272829]">{props.children}</div>;
 };
 
 export default layout;
