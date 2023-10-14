@@ -11,12 +11,6 @@ export default function Home() {
 	return (
 		<div className="bg-[#272829] p-10 text-center">
 			<h1 className="my-2">Hello</h1>
-			<Link href={"/signup"} className="mx-2 inline-block mt-4 rounded-md border px-4 py-2">
-				Sign up
-			</Link>
-			<Link href={"/login"} className="mx-2 inline-block mt-4 border rounded-md py-2 px-4">
-				Login
-			</Link>
 		</div>
 	);
 }

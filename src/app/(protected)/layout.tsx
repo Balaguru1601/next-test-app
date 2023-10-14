@@ -11,10 +11,9 @@ export default function Layout(props: Props) {
 	const { isLoggedIn } = useAuthStore();
 	const [isLoading, setIsLoading] = useState(true);
 	useEffect(() => {
-		console.log(isLoggedIn);
 		if (!isLoggedIn) return redirect("/signup");
 		return setIsLoading(false);
-	}, []);
+	}, [isLoggedIn]);
 	if (!isLoading) return <>{props.children}</>;
-	else return <>Loading...</>;
+	return null;
 }
