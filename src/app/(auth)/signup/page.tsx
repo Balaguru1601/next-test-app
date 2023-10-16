@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trpc } from "@/app/_trpc/trpc";
 import Link from "next/link";
+import Loader from "@/Components/Loader";
 
 type Props = {};
 
@@ -16,26 +17,30 @@ const SignUp = (props: Props) => {
 	const [email, setEmail] = useState<string | null>(null);
 	const [showRegisterError, setShowRegisterError] = useState<string | null>(null);
 	const [showLoginError, setShowLoginError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 	const searchParam = useSearchParams().has("s");
+	const redirect = useSearchParams().get("redirect") || "";
 	const [signUpMode, setSignUpMode] = useState<boolean>(searchParam);
 
 	useEffect(() => {
 		setSignUpMode(searchParam);
 	}, [searchParam]);
 
-	const createUser = trpc.user.register.useMutation({
+	const registerUser = trpc.user.register.useMutation({
 		onSuccess: (data) => {
 			if (data.success && data.username) {
 				login({ username: data.username });
-				router.push("/secret");
+				router.push("/" + redirect);
 			} else if (data.success === false) {
-				console.log(data);
+				setLoading(false);
 				setShowRegisterError(data.message);
 				setTimeout(() => {
 					setShowRegisterError(null);
 				}, 3000);
 			}
 		},
+		onSettled: (data) => console.log("settled"),
+		onError: () => setLoading(false),
 	});
 
 	const loginUser = trpc.user.login.useMutation({
@@ -44,7 +49,7 @@ const SignUp = (props: Props) => {
 				login({ username: data.username });
 				router.push("/secret");
 			} else if (data.success === false) {
-				console.log(data);
+				setLoading(false);
 				setShowLoginError(data.message);
 				setTimeout(() => {
 					setShowLoginError(null);
@@ -53,9 +58,10 @@ const SignUp = (props: Props) => {
 		},
 	});
 
-	const registerHandler = async () => {
+	const registerHandler = () => {
 		if (username && username.length > 0 && email && email.length && password && password.length) {
-			createUser.mutate({ username, email, password });
+			setLoading(true);
+			registerUser.mutate({ username, email, password });
 		} else setShowRegisterError("All fields are required");
 		setTimeout(() => {
 			setShowRegisterError(null);
@@ -63,8 +69,9 @@ const SignUp = (props: Props) => {
 		return;
 	};
 
-	const loginHandler = async () => {
+	const loginHandler = () => {
 		if (username && username.length > 0 && password && password.length) {
+			setLoading(true);
 			loginUser.mutate({ username, password });
 		} else setShowLoginError("All fields are required");
 		setTimeout(() => {
@@ -73,7 +80,12 @@ const SignUp = (props: Props) => {
 		return;
 	};
 
-	const toggleSignInMode = () => setSignUpMode((prev) => !prev);
+	const toggleSignInMode = () => {
+		setSignUpMode((prev) => !prev);
+		setEmail(null);
+		setPassword(null);
+		setUsername(null);
+	};
 
 	return (
 		<div className=" flex w-full pt-[12.5vh] pb-5 justify-center items-center overflow-hidden z-10">
@@ -85,7 +97,6 @@ const SignUp = (props: Props) => {
 						signUpMode ? "mt-[30%] text-3xl " : "mt-[8%] text-xl font-semibold"
 					} transition-all ease-in delay-200`}
 				>
-					{" "}
 					<span
 						className={`${
 							signUpMode ? "opacity-0 " : "opacity-100"
@@ -128,15 +139,16 @@ const SignUp = (props: Props) => {
 							onChange={(e) => setPassword(e.target.value)}
 						/>
 						<button
-							className="block w-full border p-2 rounded-lg bg-slate-600 text-white font-medium hover:text-gray-900 hover:bg-gray-100 mx-auto mt-4"
+							className="block w-full border p-2 rounded-lg bg-slate-600 text-white text-center font-medium hover:text-gray-900 hover:bg-gray-100 mx-auto mt-4"
 							type="submit"
 							form="signup"
 							onClick={(e) => {
 								e.preventDefault();
 								registerHandler();
 							}}
+							disabled={loading}
 						>
-							Sign up
+							{loading ? <Loader /> : "Sign up"}
 						</button>
 					</form>
 				</div>
@@ -153,7 +165,6 @@ const SignUp = (props: Props) => {
 							signUpMode ? "text-xl mt-4 text-black font-semibold " : "mt-[10%] text-3xl "
 						} transition-all ease-in delay-200`}
 					>
-						{" "}
 						<span
 							className={`${
 								!signUpMode ? "opacity-0 " : "opacity-100"
@@ -190,8 +201,9 @@ const SignUp = (props: Props) => {
 									e.preventDefault();
 									loginHandler();
 								}}
+								disabled={loading}
 							>
-								Log in
+								{loading ? <Loader /> : "Log in"}
 							</button>
 						</form>
 					</div>

@@ -6,7 +6,7 @@ import Link from "next/link";
 type Props = {};
 
 export default function Navbar({}: Props) {
-	const { logout } = useAuthStore();
+	const { logout, isLoggedIn } = useAuthStore();
 	const backLogout = trpc.user.logout.useMutation();
 
 	const logoutHandler = () => {
@@ -19,12 +19,16 @@ export default function Navbar({}: Props) {
 			<Link href={"/"} className="mx-2">
 				Home
 			</Link>
-			<Link href={"/signup?s"} className="mx-2">
-				Sign up
-			</Link>
-			<Link href={"/signup"} className="mx-2">
-				Login
-			</Link>
+			{!isLoggedIn && (
+				<>
+					<Link href={"/signup?s"} className="mx-2">
+						Sign up
+					</Link>
+					<Link href={"/signup"} className="mx-2">
+						Login
+					</Link>
+				</>
+			)}
 			<Link href={"/secret"} className="mx-2">
 				Secret
 			</Link>
