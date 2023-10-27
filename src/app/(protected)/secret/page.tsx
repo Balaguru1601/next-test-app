@@ -10,7 +10,6 @@ export default function Page(props: Props) {
 	const { logout } = useAuthStore();
 	const secretReq = trpc.user.secretInfo.useQuery();
 	if (secretReq.error) {
-		console.log("error");
 		logout();
 		return redirect("/");
 	}

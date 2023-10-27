@@ -5,6 +5,7 @@ import Provider from "./_trpc/Provider";
 import Navbar from "@/Components/Navbar";
 import Script from "next/script";
 import Username from "@/Components/Username";
+import Wrapper from "@/Components/Wrapper";
 
 export const metadata = {
 	title: "Next Client",
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			<Script src="https://accounts.google.com/gsi/client" async defer />
 			<body className="max-w-full min-h-screen">
 				<Provider>
-					<>{children}</>
+					<Wrapper>{children}</Wrapper>
 				</Provider>
 			</body>
 		</html>

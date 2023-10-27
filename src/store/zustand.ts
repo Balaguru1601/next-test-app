@@ -1,5 +1,5 @@
 "use client";
-import { trpc } from "@/app/_trpc/trpc";
+import { trpc, trpcVanilla } from "@/app/_trpc/trpc";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
@@ -28,9 +28,12 @@ export const useAuthStore = create<AuthStore>()(
 						username: null,
 					})),
 				verify: async () => {
-					const response = trpc.user.verify.useQuery();
-					if (response.isError) get().logout();
-					else if (response.data && response.data.username) get().login({ username: response.data.username });
+					try {
+						const response = await trpcVanilla.user.verify.query();
+						if (response && response.username) get().login({ username: response.username });
+					} catch (e) {
+						get().logout();
+					}
 				},
 			}),
 			{ name: "auth-store", skipHydration: true }
