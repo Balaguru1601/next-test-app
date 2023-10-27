@@ -1,12 +1,12 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 type Props = {
 	children: ReactNode;
 };
 
-const layout = (props: Props) => {
+const Layout = (props: Props) => {
 	return <div className="min-h-screen w-full bg-[#272829]">{props.children}</div>;
 };
 
-export default layout;
+export default Layout;

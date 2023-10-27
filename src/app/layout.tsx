@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { trpc } from "./_trpc/trpc";
 import Provider from "./_trpc/Provider";
 import Navbar from "@/Components/Navbar";
+import Script from "next/script";
+import Username from "@/Components/Username";
 
 export const metadata = {
 	title: "Next Client",
@@ -12,9 +14,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
+			<Script src="https://accounts.google.com/gsi/client" async defer />
 			<body className="max-w-full min-h-screen">
 				<Provider>
-					<Navbar />
 					<>{children}</>
 				</Provider>
 			</body>

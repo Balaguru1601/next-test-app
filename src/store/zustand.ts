@@ -1,3 +1,4 @@
+"use client";
 import { trpc } from "@/app/_trpc/trpc";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
@@ -32,7 +33,7 @@ export const useAuthStore = create<AuthStore>()(
 					else if (response.data && response.data.username) get().login({ username: response.data.username });
 				},
 			}),
-			{ name: "auth-store" }
+			{ name: "auth-store", skipHydration: true }
 		)
 	)
 );

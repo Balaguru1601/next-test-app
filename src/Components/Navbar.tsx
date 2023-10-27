@@ -2,11 +2,13 @@
 import { trpc } from "@/app/_trpc/trpc";
 import { useAuthStore } from "@/store/zustand";
 import Link from "next/link";
+import { useEffect } from "react";
 
 type Props = {};
 
 export default function Navbar({}: Props) {
 	const { logout, isLoggedIn } = useAuthStore();
+	useEffect(() => console.log(isLoggedIn), [isLoggedIn]);
 	const backLogout = trpc.user.logout.useMutation();
 
 	const logoutHandler = () => {
@@ -32,9 +34,11 @@ export default function Navbar({}: Props) {
 			<Link href={"/secret"} className="mx-2">
 				Secret
 			</Link>
-			<button onClick={logoutHandler} className="mx-2">
-				Logout
-			</button>
+			{isLoggedIn && (
+				<button onClick={logoutHandler} className="mx-2">
+					Logout
+				</button>
+			)}
 		</nav>
 	);
 }
