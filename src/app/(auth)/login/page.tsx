@@ -12,8 +12,8 @@ const Login = (props: Props) => {
 	const [showError, setShowError] = useState<string | null>(null);
 	const loginUser = trpc.user.login.useMutation({
 		onSuccess: (data) => {
-			if (data.success && data.username) {
-				login({ username: data.username });
+			if (data.success && data.username && data.userId) {
+				login({ username: data.username, userId: data.userId });
 				router.push("/welcome");
 			} else if (data.success === false) {
 				console.log(data);

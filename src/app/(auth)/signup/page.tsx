@@ -10,7 +10,7 @@ type Props = {};
 
 const SignUp = (props: Props) => {
 	const router = useRouter();
-	const { login } = useAuthStore();
+	const { login, isLoggedIn } = useAuthStore();
 
 	const [username, setUsername] = useState<string | null>(null);
 	const [password, setPassword] = useState<string | null>(null);
@@ -26,10 +26,14 @@ const SignUp = (props: Props) => {
 		setSignUpMode(searchParam);
 	}, [searchParam]);
 
+	useEffect(() => {
+		if (isLoggedIn) return router.replace("/");
+	}, [isLoggedIn, router]);
+
 	const registerUser = trpc.user.register.useMutation({
 		onSuccess: (data) => {
-			if (data.success && data.username) {
-				login({ username: data.username });
+			if (data.success && data.username && data.userId) {
+				login({ username: data.username, userId: data.userId });
 				router.push("/" + redirect);
 			} else if (data.success === false) {
 				setLoading(false);
@@ -45,8 +49,8 @@ const SignUp = (props: Props) => {
 
 	const loginUser = trpc.user.login.useMutation({
 		onSuccess: (data) => {
-			if (data.success && data.username) {
-				login({ username: data.username });
+			if (data.success && data.username && data.userId) {
+				login({ username: data.username, userId: data.userId });
 				router.push("/secret");
 			} else if (data.success === false) {
 				setLoading(false);

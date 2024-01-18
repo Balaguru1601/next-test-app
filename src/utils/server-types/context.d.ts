@@ -10,4 +10,5 @@ export declare function createContext({ req, res }: CreateWSSContextFnOptions | 
     res: import("ws") | import("express").Response<any, Record<string, any>>;
 };
 export declare const isExpressRequest: (ctx: ContextType) => ctx is CreateExpressContextOptions;
+export declare const isWSRequest: (ctx: ContextType) => ctx is CreateWSSContextFnOptions;
 export type ContextType = inferAsyncReturnType<typeof createContext>;

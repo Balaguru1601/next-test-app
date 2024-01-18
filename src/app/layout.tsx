@@ -1,6 +1,4 @@
 import "./globals.css";
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
-import { trpc } from "./_trpc/trpc";
 import Provider from "./_trpc/Provider";
 import Navbar from "@/Components/Navbar";
 import Script from "next/script";

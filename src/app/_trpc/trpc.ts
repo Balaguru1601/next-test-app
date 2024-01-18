@@ -1,6 +1,6 @@
 import type { AppRouter } from "../../utils/server-types/routes/AppRoutes";
 import { createTRPCReact } from "@trpc/react-query";
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import { createTRPCProxyClient, createWSClient, httpBatchLink, splitLink, wsLink } from "@trpc/client";
 
 export const trpc = createTRPCReact<AppRouter>();
 

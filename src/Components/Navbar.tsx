@@ -1,19 +1,31 @@
 "use client";
 import { trpc } from "@/app/_trpc/trpc";
 import { useAuthStore } from "@/store/zustand";
+import { customAlphabet } from "nanoid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 type Props = {};
 
 export default function Navbar({}: Props) {
 	const { logout, isLoggedIn } = useAuthStore();
-	useEffect(() => console.log(isLoggedIn), [isLoggedIn]);
+	const router = useRouter();
+
+	useEffect(() => {
+		useAuthStore.persist.rehydrate();
+	}, [isLoggedIn]);
 	const backLogout = trpc.user.logout.useMutation();
 
 	const logoutHandler = () => {
 		logout();
 		backLogout.mutate();
+	};
+
+	const createRoom = () => {
+		const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 8);
+		const roomId = nanoid();
+		router.push("/room/" + roomId);
 	};
 
 	return (
@@ -35,9 +47,14 @@ export default function Navbar({}: Props) {
 				Secret
 			</Link>
 			{isLoggedIn && (
-				<button onClick={logoutHandler} className="mx-2">
-					Logout
-				</button>
+				<>
+					<button onClick={logoutHandler} className="mx-2">
+						Logout
+					</button>
+					<button onClick={createRoom} className="mx-2">
+						Create a room
+					</button>
+				</>
 			)}
 		</nav>
 	);
