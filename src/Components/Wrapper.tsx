@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/Components/Navbar";
+import Provider from "@/app/_trpc/Provider";
 import { useAuthStore } from "@/store/zustand";
 import { useEffect, useState } from "react";
 
@@ -16,10 +17,10 @@ const Wrapper = (props: Props) => {
 	}, []);
 
 	return show ? (
-		<>
+		<Provider>
 			<Navbar />
 			{props.children}
-		</>
+		</Provider>
 	) : null;
 };
 

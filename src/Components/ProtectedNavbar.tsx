@@ -8,15 +8,17 @@ import { useEffect } from "react";
 
 type Props = {};
 
-export default function Navbar({}: Props) {
+export default function ProtectedNavbar({}: Props) {
 	const { logout, isLoggedIn } = useAuthStore();
 	const router = useRouter();
+	const { verify } = useAuthStore();
+	useEffect(() => {
+		verify();
+	}, []);
+	const backLogout = trpc.user.logout.useMutation();
 
-	const backLogout = trpc.user.logout.useMutation({
-		onSettled: logout,
-	});
-
-	const logoutHandler = async () => {
+	const logoutHandler = () => {
+		logout();
 		backLogout.mutate();
 	};
 
@@ -52,9 +54,6 @@ export default function Navbar({}: Props) {
 					<button onClick={createRoom} className="mx-2">
 						Create a room
 					</button>
-					<Link href={"/chat"} className="mx-2">
-						Chat
-					</Link>
 				</>
 			)}
 		</nav>

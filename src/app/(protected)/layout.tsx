@@ -15,6 +15,7 @@ export default function Layout(props: Props) {
 
 	useEffect(() => {
 		verify();
+		console.log("verify run");
 		if (!isLoggedIn) return redirect("/signup");
 		return setIsLoading(false);
 	}, [isLoggedIn, verify]);
