@@ -37,7 +37,6 @@ export const useAuthStore = create<AuthStore>()(
 						if (response && response.username)
 							get().login({ username: response.username, userId: response.userId });
 					} catch (e) {
-						console.log(e);
 						get().logout();
 					}
 				},
