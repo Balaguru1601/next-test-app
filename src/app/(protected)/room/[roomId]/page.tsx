@@ -16,7 +16,7 @@ const RoomId = (props: Props) => {
 	const [newMessage, setNewMessage] = useState("");
 	const [messages, setMessages] = useState<string[]>([]);
 	const [msgList, setMsgList] = useState<Message[]>([]);
-	const sendMessage = trpc.message.sendMessage.useMutation({
+	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
 		onSuccess: (data) => {
 			console.log(data);
 			setMessages((prev) => [...prev, newMessage]);
@@ -24,31 +24,10 @@ const RoomId = (props: Props) => {
 		},
 	});
 
-	trpc.message.onSendMessage.useSubscription(
-		{ chatId: roomId },
-		{
-			onData: (data) => {
-				console.log(data);
-				const d: Message = {
-					id: data.id,
-					senderId: data.senderId,
-					sentAt: new Date(data.sentAt),
-					chatId: data.chatId,
-					receiverId: data.receiverId,
-					viewed: data.viewed,
-					message: data.message,
-				};
-				if (!msgList.find((item) => item.id === d.id)) {
-					setMsgList((prev) => [...prev, d]);
-				}
-			},
-		}
-	);
-
 	const userId = useAuthStore().userId!;
 
 	const messageHandler = (msg: string) => {
-		sendMessage.mutate({ message: msg, senderId: userId, receiverId: userId === 1 ? 2 : 1, chatId: roomId });
+		sendMessage.mutate({ message: msg, senderId: userId, recipientId: userId === 1 ? 2 : 1, chatId: roomId });
 	};
 
 	return (

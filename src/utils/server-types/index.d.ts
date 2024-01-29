@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 declare module "express-session" {
     interface SessionData {
         user: {
@@ -6,4 +7,4 @@ declare module "express-session" {
         };
     }
 }
-export {};
+export declare const prisma: PrismaClient<import(".prisma/client").Prisma.PrismaClientOptions, never, import("@prisma/client/runtime/library").DefaultArgs>;

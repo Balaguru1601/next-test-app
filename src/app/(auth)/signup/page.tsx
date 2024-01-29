@@ -76,7 +76,7 @@ const SignUp = (props: Props) => {
 	const loginHandler = () => {
 		if (username && username.length > 0 && password && password.length) {
 			setLoading(true);
-			loginUser.mutate({ username, password });
+			loginUser.mutate({ username, password, withUsername: true });
 		} else setShowLoginError("All fields are required");
 		setTimeout(() => {
 			setShowLoginError(null);

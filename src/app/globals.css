@@ -26,3 +26,17 @@ body {
 	color: rgb(var(--foreground-rgb));
 	background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
+
+.chat-scrollbar::-webkit-scrollbar {
+	width: 10px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+	border-radius: 10px;
+	background-color: rgba(25, 147, 147, 0.1);
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: rgba(25, 147, 147, 0.2);
+}
