@@ -5,6 +5,7 @@ import { Message } from "@/constants/messageSchema";
 import { useAuthStore } from "@/store/zustand";
 import React, { useEffect, useState } from "react";
 import Loader from "./Loader";
+import Image from "next/image";
 
 type Props = {
 	recipientId: number;
@@ -97,7 +98,7 @@ function ChatLayer({ recipientId }: Props) {
 							<input
 								type="text"
 								placeholder="Send message"
-								className="text-black rounded p-1"
+								className="rounded p-1 bg-transparent text-[#0AD5C1] w-4/5"
 								value={newMessage}
 								onChange={(e) => setNewMessage(e.target.value)}
 							/>
@@ -105,7 +106,11 @@ function ChatLayer({ recipientId }: Props) {
 								disabled={sendingMessage}
 								className="mx-2 border p-1 border-white px-3 rounded hover:bg-gray-800 "
 							>
-								{sendingMessage ? <Loader /> : "Send"}
+								{sendingMessage ? (
+									<Loader />
+								) : (
+									<Image src={"/send.svg"} alt="Send" width={45} height={45} />
+								)}
 							</button>
 						</form>
 					</div>
