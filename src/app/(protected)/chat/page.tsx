@@ -40,7 +40,7 @@ function Page({}: Props) {
 						</div>
 					)}
 				</div>
-				<div className=" bg-no-repeat bg-fixed m-0 bg-chat-bg p-4">
+				<div className=" bg-no-repeat bg-fixed m-0 bg-chat-bg p-2 sm:p-4">
 					{currentChatWith ? <ChatLayer recipientId={currentChatWith} /> : null}
 				</div>
 			</div>

@@ -13,15 +13,20 @@ type Props = {
 let initial = true;
 
 async function hydrator() {
-	await useAuthStore.persist.rehydrate();
-	useAuthStore.getState().verify();
+	try {
+		await useAuthStore.persist.rehydrate();
+		useAuthStore.getState().verify();
+	} catch (error) {
+		console.log(error);
+	}
 }
 
 const Wrapper = (props: Props) => {
 	const [show, setShow] = useState(false);
+	const { isLoggedIn } = useAuthStore();
 	useEffect(() => {
 		if (initial) {
-			trpcVanilla.user.setUserOnline.query();
+			if (isLoggedIn) trpcVanilla.user.setUserOnline.query();
 			initial = false;
 		}
 

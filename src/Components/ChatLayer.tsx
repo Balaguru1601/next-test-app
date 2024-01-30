@@ -3,7 +3,7 @@
 import { trpc } from "@/app/_trpc/trpc";
 import { Message } from "@/constants/messageSchema";
 import { useAuthStore } from "@/store/zustand";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
 import Image from "next/image";
 
@@ -21,6 +21,8 @@ function ChatLayer({ recipientId }: Props) {
 	} | null>(() => {
 		return null;
 	});
+
+	const chatRef = useRef<HTMLDivElement>(null);
 
 	const [sendingMessage, setSendingMessage] = useState(false);
 
@@ -41,6 +43,12 @@ function ChatLayer({ recipientId }: Props) {
 		);
 	}, []);
 
+	useEffect(() => {
+		if (chatRef.current) {
+			chatRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+		}
+	}, [msgList.length]);
+
 	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
 		onSettled: () => setSendingMessage(false),
 	});
@@ -57,9 +65,7 @@ function ChatLayer({ recipientId }: Props) {
 	trpc.message.onSendMessage.useSubscription(undefined, {
 		onData: (data) => {
 			setSendingMessage(false);
-			if (!msgList.find((item) => item.id === data.id)) {
-				setMsgList((prev) => [...prev, data]);
-			}
+			setMsgList((prev) => [...prev, data]);
 			setNewMessage("");
 		},
 	});
@@ -72,46 +78,56 @@ function ChatLayer({ recipientId }: Props) {
 				</div>
 			) : (
 				<>
-					{" "}
-					<ul className="list-none overflow-y-scroll overflow-x-hidden chat-scrollbar p-4 max-h-[80vh]">
+					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:pr-4 pb-0 max-h-[80vh]">
 						{msgList.map((msg) => (
-							<div key={Math.random()} className={msg.senderId === userId ? "text-right" : ""}>
-								<li
-									className={`mb-3 py-2 bg-[rgba(25,147,147,0.2)] rounded-lg text-lg inline-block clear-both relative ${
+							<li key={Math.random()} className={msg.senderId === userId ? "text-right" : ""}>
+								<p
+									className={`mb-3 py-2 bg-[rgba(25,147,147,0.2)] text-left rounded-lg text-lg inline-block clear-both relative ${
 										msg.senderId === userId
 											? " text-[#0AD5C1] pl-4 pr-6"
 											: "text-[#0EC879] pl-6 pr-4"
 									} `}
 								>
 									{msg.message}
-								</li>
-							</div>
+								</p>
+							</li>
 						))}
+						<div ref={chatRef} />
 					</ul>
-					<div className="text-right pr-4">
+					<div className="pr-4">
 						<form
 							onSubmit={(e) => {
 								e.preventDefault();
 								if (newMessage.length > 0) messageHandler(newMessage);
 							}}
 						>
-							<input
-								type="text"
-								placeholder="Send message"
-								className="rounded p-1 bg-transparent text-[#0AD5C1] w-4/5"
-								value={newMessage}
-								onChange={(e) => setNewMessage(e.target.value)}
-							/>
-							<button
-								disabled={sendingMessage}
-								className="mx-2 border p-1 border-white px-3 rounded hover:bg-gray-800 "
-							>
-								{sendingMessage ? (
-									<Loader />
-								) : (
-									<Image src={"/send.svg"} alt="Send" width={45} height={45} />
-								)}
-							</button>
+							<div className="sm:pr-20 pr-10 pl-4 relative">
+								<input
+									type="text"
+									placeholder="Send message"
+									className="rounded p-2 w-full text-lg focus:outline-none border-none bg-transparent inline-block text-[#0AD5C1]"
+									value={newMessage}
+									onChange={(e) => setNewMessage(e.target.value)}
+								/>
+								<button
+									disabled={sendingMessage}
+									className="py-2 text-center border-white sm:px-3 px-2 rounded absolute hover:bg-gray-800"
+								>
+									{sendingMessage ? (
+										<Loader />
+									) : (
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="#0AD5C1"
+											className="w-8 h-8 "
+											viewBox="0 0 24 24"
+										>
+											<path d="M2 21l20-9L2 3v7l15 2-15 2z" />
+											<path d="M0 0h24v24H0z" fill="none" />
+										</svg>
+									)}
+								</button>
+							</div>
 						</form>
 					</div>
 				</>
