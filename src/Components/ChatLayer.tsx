@@ -80,17 +80,7 @@ function ChatLayer({ recipientId }: Props) {
 				<>
 					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:pr-4 pb-0 max-h-[80vh]">
 						{msgList.map((msg) => (
-							<li key={Math.random()} className={msg.senderId === userId ? "text-right" : ""}>
-								<p
-									className={`mb-3 py-2 bg-[rgba(25,147,147,0.2)] text-left rounded-lg text-lg inline-block clear-both relative ${
-										msg.senderId === userId
-											? " text-[#0AD5C1] pl-4 pr-6"
-											: "text-[#0EC879] pl-6 pr-4"
-									} `}
-								>
-									{msg.message}
-								</p>
-							</li>
+							<MessageBox message={msg} userId={userId} key={Math.random()} />
 						))}
 						<div ref={chatRef} />
 					</ul>
@@ -133,6 +123,71 @@ function ChatLayer({ recipientId }: Props) {
 				</>
 			)}
 		</div>
+	);
+}
+
+function MessageBox({ message, userId }: { message: Message; userId: number }) {
+	const [showOptions, setShowOptions] = useState(false);
+	const [isFocussed, setIsFocussed] = useState(false);
+
+	const optionsRef = useRef<HTMLButtonElement>(null);
+
+	function toggleShowOption(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+		if (!showOptions) {
+			optionsRef.current && optionsRef.current.focus();
+		}
+		setShowOptions((prev) => {
+			return !prev;
+		});
+	}
+
+	return (
+		<li className={message.senderId === userId ? "text-right relative" : "relative"}>
+			<p
+				className={`mb-3 py-2 bg-[rgba(25,147,147,0.2)] text-left rounded-lg text-lg inline-block clear-both relative ${
+					message.senderId === userId ? " text-[#0AD5C1] pl-4 pr-6" : "text-[#0EC879] pl-6 pr-4"
+				} `}
+			>
+				{message.message}
+				<button
+					title="options"
+					className="ml-2"
+					tabIndex={-1}
+					ref={optionsRef}
+					onBlur={(e) => {
+						console.log("blur");
+						setShowOptions(false);
+					}}
+					onClick={toggleShowOption}
+				>
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<path d="M6 12L12 18L18 12" />
+					</svg>
+					<span
+						className={
+							"absolute px-1 bg-[rgba(25,147,147,0.2)]" +
+							`${message.senderId === userId ? " right-0" : " left-0"}`
+						}
+					>
+						{showOptions && (
+							<>
+								<button className="block">Delete</button>
+								<button className="block">Edit</button>
+							</>
+						)}
+					</span>
+				</button>
+			</p>
+		</li>
 	);
 }
 
