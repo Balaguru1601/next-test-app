@@ -1,4 +1,14 @@
 import { z } from "zod";
+export declare const OutputTemplate: z.ZodObject<{
+    success: z.ZodBoolean;
+    message: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    success: boolean;
+}, {
+    message: string;
+    success: boolean;
+}>;
 export declare const SendMessageInput: z.ZodObject<{
     message: z.ZodString;
     chatId: z.ZodString;
@@ -25,8 +35,8 @@ export declare const MessageSchema: z.ZodObject<{
     viewed: z.ZodBoolean;
     receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
 }, "strip", z.ZodTypeAny, {
-    message: string;
     id: string;
+    message: string;
     recipientId: number;
     sentAt: Date;
     senderId: number;
@@ -34,8 +44,8 @@ export declare const MessageSchema: z.ZodObject<{
     receivedAt: Date | null;
     chatId: string;
 }, {
-    message: string;
     id: string;
+    message: string;
     recipientId: number;
     sentAt: Date;
     senderId: number;
@@ -58,10 +68,10 @@ export declare const SendMessageOutput: z.ZodObject<{
         createdAt: z.ZodDate;
         updatedAt: z.ZodDate;
     }, "strip", z.ZodTypeAny, {
-        message: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -69,10 +79,10 @@ export declare const SendMessageOutput: z.ZodObject<{
         receivedAt: Date | null;
         chatId: string;
     }, {
-        message: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -84,10 +94,10 @@ export declare const SendMessageOutput: z.ZodObject<{
     message: string;
     success: boolean;
     chat?: {
-        message: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -99,10 +109,10 @@ export declare const SendMessageOutput: z.ZodObject<{
     message: string;
     success: boolean;
     chat?: {
-        message: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -132,8 +142,8 @@ export declare const LoadChatOutput: z.ZodObject<{
         viewed: z.ZodBoolean;
         receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
     }, "strip", z.ZodTypeAny, {
-        message: string;
         id: string;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -141,8 +151,8 @@ export declare const LoadChatOutput: z.ZodObject<{
         receivedAt: Date | null;
         chatId: string;
     }, {
-        message: string;
         id: string;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -155,8 +165,8 @@ export declare const LoadChatOutput: z.ZodObject<{
     success: boolean;
     chatId?: string | undefined;
     messages?: {
-        message: string;
         id: string;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -169,8 +179,8 @@ export declare const LoadChatOutput: z.ZodObject<{
     success: boolean;
     chatId?: string | undefined;
     messages?: {
-        message: string;
         id: string;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -179,4 +189,80 @@ export declare const LoadChatOutput: z.ZodObject<{
         receivedAt?: Date | null | undefined;
     }[] | undefined;
 }>;
+export declare const AllChatOutput: z.ZodObject<{
+    success: z.ZodBoolean;
+    message: z.ZodString;
+    chats: z.ZodOptional<z.ZodNullable<z.ZodArray<z.ZodObject<{
+        user: z.ZodObject<{
+            id: z.ZodNumber;
+            email: z.ZodString;
+            username: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            id: number;
+            email: string;
+            username: string;
+        }, {
+            id: number;
+            email: string;
+            username: string;
+        }>;
+        id: z.ZodString;
+        createdAt: z.ZodDate;
+        updatedAt: z.ZodDate;
+    }, "strip", z.ZodTypeAny, {
+        user: {
+            id: number;
+            email: string;
+            username: string;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }, {
+        user: {
+            id: number;
+            email: string;
+            username: string;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>, "many">>>;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    success: boolean;
+    chats?: {
+        user: {
+            id: number;
+            email: string;
+            username: string;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[] | null | undefined;
+}, {
+    message: string;
+    success: boolean;
+    chats?: {
+        user: {
+            id: number;
+            email: string;
+            username: string;
+        };
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }[] | null | undefined;
+}>;
+export interface ProcessedChat {
+    user: {
+        id: number;
+        email: string;
+        username: string;
+    };
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
 export type Message = z.TypeOf<typeof MessageSchema>;

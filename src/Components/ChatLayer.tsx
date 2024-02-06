@@ -78,7 +78,7 @@ function ChatLayer({ recipientId }: Props) {
 				</div>
 			) : (
 				<>
-					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:pr-4 pb-0 max-h-[80vh]">
+					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:px-8  md:px-12 pb-0 max-h-[80vh]">
 						{msgList.map((msg) => (
 							<MessageBox message={msg} userId={userId} key={Math.random()} />
 						))}
@@ -128,11 +128,10 @@ function ChatLayer({ recipientId }: Props) {
 
 function MessageBox({ message, userId }: { message: Message; userId: number }) {
 	const [showOptions, setShowOptions] = useState(false);
-	const [isFocussed, setIsFocussed] = useState(false);
 
-	const optionsRef = useRef<HTMLButtonElement>(null);
+	const optionsRef = useRef<HTMLDivElement>(null);
 
-	function toggleShowOption(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+	function toggleShowOption(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		if (!showOptions) {
 			optionsRef.current && optionsRef.current.focus();
 		}
@@ -142,22 +141,21 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 	}
 
 	return (
-		<li className={message.senderId === userId ? "text-right relative" : "relative"}>
-			<p
-				className={`mb-3 py-2 bg-[rgba(25,147,147,0.2)] text-left rounded-lg text-lg inline-block clear-both relative ${
-					message.senderId === userId ? " text-[#0AD5C1] pl-4 pr-6" : "text-[#0EC879] pl-6 pr-4"
-				} `}
-			>
-				{message.message}
-				<button
+		<li className={`${message.senderId === userId ? "text-right " : ""} relative`}>
+			<div className="bg-[rgba(25,147,147,0.2)] max-w-[50%] text-left text-[#0AD5C1] inline-block mb-3 rounded-lg px-1">
+				<p
+					className={`py-2 text-lg inline-block clear-both relative ${
+						message.senderId === userId ? " text-[#0AD5C1] pl-4" : "text-[#0EC879] pl-4"
+					} `}
+				>
+					{message.message}
+				</p>
+				<div
 					title="options"
-					className="ml-2"
+					className="ml-2 relative cursor-pointer inline-block float-right"
 					tabIndex={-1}
 					ref={optionsRef}
-					onBlur={(e) => {
-						console.log("blur");
-						setShowOptions(false);
-					}}
+					onBlur={(e) => setShowOptions(false)}
 					onClick={toggleShowOption}
 				>
 					<svg
@@ -174,19 +172,32 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 					</svg>
 					<span
 						className={
-							"absolute px-1 bg-[rgba(25,147,147,0.2)]" +
-							`${message.senderId === userId ? " right-0" : " left-0"}`
+							"absolute mt-2 bg-[#104f4f] opacity-100 z-50 rounded" +
+							`${message.senderId === userId ? " right-0" : " left-0"}` +
+							`${showOptions ? " border border-gray-400" : ""}`
 						}
 					>
 						{showOptions && (
 							<>
-								<button className="block">Delete</button>
-								<button className="block">Edit</button>
+								<button
+									className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
+									title=""
+								>
+									Delete
+								</button>
+								{message.senderId === userId && (
+									<button
+										className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
+										title=""
+									>
+										Edit
+									</button>
+								)}
 							</>
 						)}
 					</span>
-				</button>
-			</p>
+				</div>
+			</div>
 		</li>
 	);
 }

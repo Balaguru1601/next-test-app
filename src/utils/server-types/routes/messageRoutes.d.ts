@@ -5,7 +5,7 @@
 export declare const messageRouter: import("@trpc/server").CreateRouterInner<import("@trpc/server").RootConfig<{
     ctx: {
         req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-        res: import("ws").WebSocket | import("express").Response<any, Record<string, any>>;
+        res: import("ws") | import("express").Response<any, Record<string, any>>;
     };
     meta: object;
     errorShape: import("@trpc/server").DefaultErrorShape;
@@ -15,7 +15,7 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: {
                 req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("ws").WebSocket | import("express").Response<any, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
             };
             meta: object;
             errorShape: import("@trpc/server").DefaultErrorShape;
@@ -25,6 +25,14 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _ctx_out: {
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
             res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
         };
         _input_in: {
             message: string;
@@ -42,10 +50,10 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             message: string;
             success: boolean;
             chat?: {
-                message: string;
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                message: string;
                 recipientId: number;
                 sentAt: Date;
                 senderId: number;
@@ -58,10 +66,10 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             message: string;
             success: boolean;
             chat?: {
-                message: string;
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                message: string;
                 recipientId: number;
                 sentAt: Date;
                 senderId: number;
@@ -75,7 +83,7 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: {
                 req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("ws").WebSocket | import("express").Response<any, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
             };
             meta: object;
             errorShape: import("@trpc/server").DefaultErrorShape;
@@ -85,6 +93,14 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _ctx_out: {
             req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
             res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
         };
         _input_in: {
             recipientId: number;
@@ -97,8 +113,8 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             success: boolean;
             chatId?: string | undefined;
             messages?: {
-                message: string;
                 id: string;
+                message: string;
                 recipientId: number;
                 sentAt: Date;
                 senderId: number;
@@ -112,8 +128,8 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             success: boolean;
             chatId?: string | undefined;
             messages?: {
-                message: string;
                 id: string;
+                message: string;
                 recipientId: number;
                 sentAt: Date;
                 senderId: number;
@@ -127,7 +143,7 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _config: import("@trpc/server").RootConfig<{
             ctx: {
                 req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("ws").WebSocket | import("express").Response<any, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
             };
             meta: object;
             errorShape: import("@trpc/server").DefaultErrorShape;
@@ -136,15 +152,15 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         _meta: object;
         _ctx_out: {
             req: import("http").IncomingMessage;
-            res: import("ws").WebSocket;
+            res: import("ws");
         };
         _input_in: typeof import("@trpc/server").unsetMarker;
         _input_out: typeof import("@trpc/server").unsetMarker;
         _output_in: typeof import("@trpc/server").unsetMarker;
         _output_out: typeof import("@trpc/server").unsetMarker;
     }, import("@trpc/server/observable").Observable<{
-        message: string;
         id: string;
+        message: string;
         recipientId: number;
         sentAt: Date;
         senderId: number;
@@ -152,4 +168,58 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
         receivedAt: Date | null;
         chatId: string;
     }, unknown>>;
+    getAllChats: import("@trpc/server").BuildProcedure<"query", {
+        _config: import("@trpc/server").RootConfig<{
+            ctx: {
+                req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
+            };
+            meta: object;
+            errorShape: import("@trpc/server").DefaultErrorShape;
+            transformer: typeof import("superjson").default;
+        }>;
+        _meta: object;
+        _ctx_out: {
+            req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+            res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+        };
+        _input_in: typeof import("@trpc/server").unsetMarker;
+        _input_out: typeof import("@trpc/server").unsetMarker;
+        _output_in: {
+            message: string;
+            success: boolean;
+            chats?: {
+                user: {
+                    id: number;
+                    email: string;
+                    username: string;
+                };
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+            }[] | null | undefined;
+        };
+        _output_out: {
+            message: string;
+            success: boolean;
+            chats?: {
+                user: {
+                    id: number;
+                    email: string;
+                    username: string;
+                };
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+            }[] | null | undefined;
+        };
+    }, unknown>;
 }>;

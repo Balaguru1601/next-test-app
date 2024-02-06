@@ -5,28 +5,28 @@ export declare const UserObject: z.ZodObject<{
     email: z.ZodString;
     id: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
+    id: number;
+    email: string;
     username: string;
     password: string;
-    email: string;
-    id: number;
 }, {
+    id: number;
+    email: string;
     username: string;
     password: string;
-    email: string;
-    id: number;
 }>;
 export declare const UserRegisterObject: z.ZodObject<{
     username: z.ZodString;
     password: z.ZodString;
     email: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    email: string;
     username: string;
     password: string;
-    email: string;
 }, {
+    email: string;
     username: string;
     password: string;
-    email: string;
 }>;
 export declare const UserLoginObject: z.ZodObject<{
     username: z.ZodString;
@@ -67,25 +67,25 @@ export declare const OnlineUsersOutput: z.ZodObject<{
         username: z.ZodString;
         id: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        username: string;
         id: number;
+        username: string;
     }, {
-        username: string;
         id: number;
+        username: string;
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     message: string;
     success: boolean;
     users?: {
-        username: string;
         id: number;
+        username: string;
     }[] | undefined;
 }, {
     message: string;
     success: boolean;
     users?: {
-        username: string;
         id: number;
+        username: string;
     }[] | undefined;
 }>;
 export type AuthOutputType = z.TypeOf<typeof AuthOutput>;
