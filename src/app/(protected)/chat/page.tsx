@@ -33,10 +33,10 @@ function Page({}: Props) {
 		<div className="pb-4 h-[80vh]">
 			<div className="grid grid-cols-[1fr_2fr] ">
 				<div className="pt-2 bg-[rgba(25,147,147,0.2)] p-4">
-					{data ? (
-						data?.success && data?.chats && data.chats.length > 0 ? (
+					{chatData ? (
+						chatData.length > 0 ? (
 							<>
-								{data.chats.map((chat) => (
+								{chatData.map((chat) => (
 									<div
 										key={Math.random()}
 										className="cursor-pointer"
@@ -49,7 +49,7 @@ function Page({}: Props) {
 								))}
 							</>
 						) : (
-							<>No online users available</>
+							<>Start Chatting now!</>
 						)
 					) : (
 						<div className="text-center">

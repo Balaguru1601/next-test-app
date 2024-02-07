@@ -34,7 +34,6 @@ export const useAuthStore = create<AuthStore>()(
 				verify: async () => {
 					try {
 						const response = await trpcVanilla.user.verify.query();
-						console.log(response);
 						if (response && response.username)
 							get().login({ username: response.username, userId: response.userId });
 					} catch (e) {
