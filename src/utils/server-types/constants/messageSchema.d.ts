@@ -27,31 +27,31 @@ export declare const SendMessageInput: z.ZodObject<{
 }>;
 export declare const MessageSchema: z.ZodObject<{
     id: z.ZodString;
-    sentAt: z.ZodDate;
+    sentAt: z.ZodString;
     message: z.ZodString;
     chatId: z.ZodString;
     senderId: z.ZodNumber;
     recipientId: z.ZodNumber;
     viewed: z.ZodBoolean;
-    receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
+    receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     message: string;
     recipientId: number;
-    sentAt: Date;
+    sentAt: string;
     senderId: number;
     viewed: boolean;
-    receivedAt: Date | null;
+    receivedAt: string | null;
     chatId: string;
 }, {
     id: string;
     message: string;
     recipientId: number;
-    sentAt: Date;
+    sentAt: string;
     senderId: number;
     viewed: boolean;
     chatId: string;
-    receivedAt?: Date | null | undefined;
+    receivedAt?: string | null | undefined;
 }>;
 export declare const SendMessageOutput: z.ZodObject<{
     success: z.ZodBoolean;
@@ -135,31 +135,31 @@ export declare const LoadChatOutput: z.ZodObject<{
     messages: z.ZodOptional<z.ZodArray<z.ZodObject<{
         messages: z.ZodArray<z.ZodObject<{
             id: z.ZodString;
-            sentAt: z.ZodDate;
+            sentAt: z.ZodString;
             message: z.ZodString;
             chatId: z.ZodString;
             senderId: z.ZodNumber;
             recipientId: z.ZodNumber;
             viewed: z.ZodBoolean;
-            receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
+            receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
         }, "strip", z.ZodTypeAny, {
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
-            receivedAt: Date | null;
+            receivedAt: string | null;
             chatId: string;
         }, {
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
             chatId: string;
-            receivedAt?: Date | null | undefined;
+            receivedAt?: string | null | undefined;
         }>, "many">;
         date: z.ZodDate;
     }, "strip", z.ZodTypeAny, {
@@ -168,10 +168,10 @@ export declare const LoadChatOutput: z.ZodObject<{
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
-            receivedAt: Date | null;
+            receivedAt: string | null;
             chatId: string;
         }[];
     }, {
@@ -180,11 +180,11 @@ export declare const LoadChatOutput: z.ZodObject<{
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
             chatId: string;
-            receivedAt?: Date | null | undefined;
+            receivedAt?: string | null | undefined;
         }[];
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
@@ -197,10 +197,10 @@ export declare const LoadChatOutput: z.ZodObject<{
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
-            receivedAt: Date | null;
+            receivedAt: string | null;
             chatId: string;
         }[];
     }[] | undefined;
@@ -214,11 +214,11 @@ export declare const LoadChatOutput: z.ZodObject<{
             id: string;
             message: string;
             recipientId: number;
-            sentAt: Date;
+            sentAt: string;
             senderId: number;
             viewed: boolean;
             chatId: string;
-            receivedAt?: Date | null | undefined;
+            receivedAt?: string | null | undefined;
         }[];
     }[] | undefined;
 }>;

@@ -3,7 +3,7 @@
 import { trpc } from "@/app/_trpc/trpc";
 import { Message } from "@/constants/messageSchema";
 import { useAuthStore } from "@/store/zustand";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
 import Image from "next/image";
 import moment from "moment";
@@ -15,6 +15,7 @@ type Props = {
 function ChatLayer({ recipientId }: Props) {
 	const [newMessage, setNewMessage] = useState("");
 	const [loading, setLoading] = useState(true);
+	const [resetScroller, setResetScroller] = useState(false);
 	const [msgList, setMsgList] = useState<{ date: Date; messages: Message[] }[]>([]);
 	const [chat, setChat] = useState<{
 		chatId: string;
@@ -42,6 +43,11 @@ function ChatLayer({ recipientId }: Props) {
 					setLoading(false);
 					return;
 				},
+				onError: (data) => {
+					console.log(data);
+					setLoading(false);
+					return;
+				},
 			}
 		);
 	}, []);
@@ -50,7 +56,7 @@ function ChatLayer({ recipientId }: Props) {
 		if (chatRef.current) {
 			chatRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
 		}
-	}, [msgList.length]);
+	}, [msgList.length, resetScroller]);
 
 	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
 		onSettled: () => setSendingMessage(false),
@@ -76,17 +82,23 @@ function ChatLayer({ recipientId }: Props) {
 			let dateIndex = msgList.findIndex((item) =>
 				moment(data.sentAt).isSame(item.date, "date")
 			);
-			if (dateIndex > -1)
-				setMsgList((prev) =>
-					[...prev].splice(dateIndex, 1, {
+			if (dateIndex > -1) {
+				setMsgList((prev) => {
+					const t = [...prev];
+					t.splice(dateIndex, 1, {
 						date: prev[dateIndex].date,
 						messages: [...prev[dateIndex].messages, data],
-					})
-				);
-			else {
+					});
+					return t;
+				});
+				setResetScroller((prev) => !prev);
+			} else {
 				setMsgList((prev) => [
 					...prev,
-					{ date: new Date(data.sentAt.setHours(0, 0, 0, 0)), messages: [data] },
+					{
+						date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
+						messages: [data],
+					},
 				]);
 			}
 			setNewMessage("");
@@ -107,9 +119,9 @@ function ChatLayer({ recipientId }: Props) {
 								<MessageBox message={msg} userId={userId} key={Math.random()} />
 							));
 							return (
-								<div className="bg-[rgba(25,147,147,0.2)]" key={Math.random()}>
-									<p className="text-center">
-										{moment(chat.date).format("Do MMMM YY")}
+								<div className="" key={Math.random()}>
+									<p className="text-center my-4">
+										{moment(chat.date).format("Do MMM YY")}
 									</p>
 									{messages}
 								</div>
@@ -175,13 +187,13 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 		});
 	}
 
-	const messageSentAt = moment(message.sentAt).format("HH:mm");
+	const messageSentAt = moment.utc(message.sentAt).local().format("HH:mm");
 
 	return (
 		<li className={`${message.senderId === userId ? "text-right " : " "}`}>
 			<div
 				className={
-					"group max-w-[50%] text-left relative text-[#0AD5C1] inline-block mb-3 rounded-lg px-1" +
+					"group max-w-[50%] bg-[rgba(25,147,147,0.2)] text-left relative text-[#0AD5C1] inline-block mb-3 rounded-lg px-1" +
 					`${message.senderId === userId ? " rounded-tr-none" : " rounded-tl-none"}`
 				}
 			>
@@ -233,7 +245,9 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 				</div>
 				<div
 					title="options"
-					className="absolute right-1 top-0 cursor-pointer -z-10 group-hover:z-10"
+					className={`absolute right-1 top-0 cursor-pointer ${
+						showOptions ? " z-10 " : " -z-10 "
+					} group-hover:z-10`}
 					tabIndex={-1}
 					ref={optionsRef}
 					onBlur={(e) => {
@@ -256,8 +270,8 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 					</svg>
 					<span
 						className={
-							"absolute mt-2 bg-[#104f4f] opacity-100 z-50 rounded" +
-							`${message.senderId === userId ? " right-0" : " left-0"}` +
+							"absolute mt-0 bg-[#104f4f] opacity-100 z-50 rounded" +
+							`${message.senderId === userId ? " left-0" : " left-0"}` +
 							`${showOptions ? " border border-gray-400" : ""}`
 						}
 					>

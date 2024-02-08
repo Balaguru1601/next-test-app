@@ -9,13 +9,13 @@ export const SendMessageSchema = z.object({
 
 export const MessageSchema = z.object({
 	id: z.string(),
-	sentAt: z.date(),
+	sentAt: z.string(),
 	message: z.string(),
 	chatId: z.string(),
 	senderId: z.number(),
 	recipientId: z.number(),
 	viewed: z.boolean(),
-	receivedAt: z.date().nullable().default(null),
+	receivedAt: z.string().nullable().default(null),
 });
 
 export type Message = z.TypeOf<typeof MessageSchema>;
