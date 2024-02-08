@@ -394,14 +394,12 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                 success: boolean;
                 chat?: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     message: string;
                     recipientId: number;
-                    sentAt: Date;
+                    sentAt: string;
                     senderId: number;
                     viewed: boolean;
-                    receivedAt: Date | null;
+                    receivedAt: string | null;
                     chatId: string;
                 } | undefined;
             };
@@ -410,14 +408,12 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                 success: boolean;
                 chat?: {
                     id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
                     message: string;
                     recipientId: number;
-                    sentAt: Date;
+                    sentAt: string;
                     senderId: number;
                     viewed: boolean;
-                    receivedAt: Date | null;
+                    receivedAt: string | null;
                     chatId: string;
                 } | undefined;
             };

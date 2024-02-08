@@ -58,36 +58,30 @@ export declare const SendMessageOutput: z.ZodObject<{
     message: z.ZodString;
     chat: z.ZodOptional<z.ZodObject<{
         id: z.ZodString;
-        sentAt: z.ZodDate;
+        sentAt: z.ZodString;
         message: z.ZodString;
         chatId: z.ZodString;
         senderId: z.ZodNumber;
         recipientId: z.ZodNumber;
         viewed: z.ZodBoolean;
-        receivedAt: z.ZodNullable<z.ZodDate>;
-        createdAt: z.ZodDate;
-        updatedAt: z.ZodDate;
+        receivedAt: z.ZodNullable<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         message: string;
         recipientId: number;
-        sentAt: Date;
+        sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: Date | null;
+        receivedAt: string | null;
         chatId: string;
     }, {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         message: string;
         recipientId: number;
-        sentAt: Date;
+        sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: Date | null;
+        receivedAt: string | null;
         chatId: string;
     }>>;
 }, "strip", z.ZodTypeAny, {
@@ -95,14 +89,12 @@ export declare const SendMessageOutput: z.ZodObject<{
     success: boolean;
     chat?: {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         message: string;
         recipientId: number;
-        sentAt: Date;
+        sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: Date | null;
+        receivedAt: string | null;
         chatId: string;
     } | undefined;
 }, {
@@ -110,14 +102,12 @@ export declare const SendMessageOutput: z.ZodObject<{
     success: boolean;
     chat?: {
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         message: string;
         recipientId: number;
-        sentAt: Date;
+        sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: Date | null;
+        receivedAt: string | null;
         chatId: string;
     } | undefined;
 }>;

@@ -7,13 +7,13 @@ import React, { use, useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
 import Image from "next/image";
 import moment from "moment";
+import ChatInput from "./ChatInput";
 
 type Props = {
 	recipientId: number;
 };
 
 function ChatLayer({ recipientId }: Props) {
-	const [newMessage, setNewMessage] = useState("");
 	const [loading, setLoading] = useState(true);
 	const [resetScroller, setResetScroller] = useState(false);
 	const [msgList, setMsgList] = useState<{ date: Date; messages: Message[] }[]>([]);
@@ -24,6 +24,7 @@ function ChatLayer({ recipientId }: Props) {
 		return null;
 	});
 
+	const toggleResetScroller = () => setResetScroller((prev) => !prev);
 	const chatRef = useRef<HTMLDivElement>(null);
 
 	const [sendingMessage, setSendingMessage] = useState(false);
@@ -60,6 +61,35 @@ function ChatLayer({ recipientId }: Props) {
 
 	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
 		onSettled: () => setSendingMessage(false),
+		onSuccess: (data) => {
+			if (data.success && data.chat) {
+				setSendingMessage(false);
+				const sentAt = new Date(data.chat!.sentAt).toISOString();
+				let dateIndex = msgList.findIndex((item) =>
+					moment(new Date(data.chat!.sentAt)).isSame(item.date, "date")
+				);
+				console.log(data.chat!.sentAt);
+				if (dateIndex > -1) {
+					setMsgList((prev) => {
+						const t = [...prev];
+						t.splice(dateIndex, 1, {
+							date: prev[dateIndex].date,
+							messages: [...prev[dateIndex].messages, { ...data.chat!, sentAt }],
+						});
+						return t;
+					});
+					setResetScroller((prev) => !prev);
+				} else {
+					setMsgList((prev) => [
+						...prev,
+						{
+							date: new Date(new Date(data.chat!.sentAt).setHours(0, 0, 0, 0)),
+							messages: [data.chat!],
+						},
+					]);
+				}
+			}
+		},
 	});
 
 	const userId = useAuthStore().userId!;
@@ -80,8 +110,9 @@ function ChatLayer({ recipientId }: Props) {
 		onData: (data) => {
 			setSendingMessage(false);
 			let dateIndex = msgList.findIndex((item) =>
-				moment(data.sentAt).isSame(item.date, "date")
+				moment.utc(data.sentAt).local().isSame(item.date, "date")
 			);
+			console.log(dateIndex);
 			if (dateIndex > -1) {
 				setMsgList((prev) => {
 					const t = [...prev];
@@ -89,6 +120,7 @@ function ChatLayer({ recipientId }: Props) {
 						date: prev[dateIndex].date,
 						messages: [...prev[dateIndex].messages, data],
 					});
+					console.log(t);
 					return t;
 				});
 				setResetScroller((prev) => !prev);
@@ -101,7 +133,6 @@ function ChatLayer({ recipientId }: Props) {
 					},
 				]);
 			}
-			setNewMessage("");
 		},
 	});
 
@@ -130,40 +161,13 @@ function ChatLayer({ recipientId }: Props) {
 						<div ref={chatRef} />
 					</ul>
 					<div className="pr-4">
-						<form
-							onSubmit={(e) => {
-								e.preventDefault();
-								if (newMessage.length > 0) messageHandler(newMessage);
-							}}
-						>
-							<div className="sm:pr-20 pr-10 pl-4 relative">
-								<input
-									type="text"
-									placeholder="Send message"
-									className="rounded p-2 w-full text-lg focus:outline-none border-none bg-transparent inline-block text-[#0AD5C1]"
-									value={newMessage}
-									onChange={(e) => setNewMessage(e.target.value)}
-								/>
-								<button
-									disabled={sendingMessage}
-									className="py-2 text-center border-white sm:px-3 px-2 rounded absolute hover:bg-gray-800"
-								>
-									{sendingMessage ? (
-										<Loader />
-									) : (
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="#0AD5C1"
-											className="w-8 h-8 "
-											viewBox="0 0 24 24"
-										>
-											<path d="M2 21l20-9L2 3v7l15 2-15 2z" />
-											<path d="M0 0h24v24H0z" fill="none" />
-										</svg>
-									)}
-								</button>
-							</div>
-						</form>
+						<ChatInput
+							recipientId={recipientId}
+							chatId={chat?.chatId}
+							msgList={msgList}
+							setMsgList={setMsgList}
+							resetScroller={toggleResetScroller}
+						/>
 					</div>
 				</>
 			)}

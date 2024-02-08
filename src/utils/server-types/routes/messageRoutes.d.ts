@@ -51,14 +51,12 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             success: boolean;
             chat?: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 message: string;
                 recipientId: number;
-                sentAt: Date;
+                sentAt: string;
                 senderId: number;
                 viewed: boolean;
-                receivedAt: Date | null;
+                receivedAt: string | null;
                 chatId: string;
             } | undefined;
         };
@@ -67,14 +65,12 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             success: boolean;
             chat?: {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
                 message: string;
                 recipientId: number;
-                sentAt: Date;
+                sentAt: string;
                 senderId: number;
                 viewed: boolean;
-                receivedAt: Date | null;
+                receivedAt: string | null;
                 chatId: string;
             } | undefined;
         };
