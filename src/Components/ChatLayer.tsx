@@ -15,10 +15,10 @@ type Props = {
 function ChatLayer({ recipientId }: Props) {
 	const [newMessage, setNewMessage] = useState("");
 	const [loading, setLoading] = useState(true);
-	const [msgList, setMsgList] = useState<Message[]>([]);
+	const [msgList, setMsgList] = useState<{ date: Date; messages: Message[] }[]>([]);
 	const [chat, setChat] = useState<{
 		chatId: string;
-		messages: Message[];
+		messages: { date: Date; messages: Message[] }[];
 	} | null>(() => {
 		return null;
 	});
@@ -29,10 +29,12 @@ function ChatLayer({ recipientId }: Props) {
 
 	const chatData = trpc.message.loadIndividualChat.useMutation();
 	useEffect(() => {
+		console.log("fired!!");
 		chatData.mutate(
 			{ recipientId },
 			{
 				onSuccess: (data) => {
+					console.log("success");
 					if (data.chatId && data.messages) {
 						setChat({ chatId: data.chatId, messages: data.messages });
 						setMsgList(data.messages);
@@ -71,7 +73,22 @@ function ChatLayer({ recipientId }: Props) {
 	trpc.message.onSendMessage.useSubscription(undefined, {
 		onData: (data) => {
 			setSendingMessage(false);
-			setMsgList((prev) => [...prev, data]);
+			let dateIndex = msgList.findIndex((item) =>
+				moment(data.sentAt).isSame(item.date, "date")
+			);
+			if (dateIndex > -1)
+				setMsgList((prev) =>
+					[...prev].splice(dateIndex, 1, {
+						date: prev[dateIndex].date,
+						messages: [...prev[dateIndex].messages, data],
+					})
+				);
+			else {
+				setMsgList((prev) => [
+					...prev,
+					{ date: new Date(data.sentAt.setHours(0, 0, 0, 0)), messages: [data] },
+				]);
+			}
 			setNewMessage("");
 		},
 	});
@@ -85,9 +102,19 @@ function ChatLayer({ recipientId }: Props) {
 			) : (
 				<>
 					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:px-8  md:px-12 pb-0 max-h-[80vh]">
-						{msgList.map((msg) => (
-							<MessageBox message={msg} userId={userId} key={Math.random()} />
-						))}
+						{msgList.map((chat) => {
+							const messages = chat.messages.map((msg) => (
+								<MessageBox message={msg} userId={userId} key={Math.random()} />
+							));
+							return (
+								<div className="bg-[rgba(25,147,147,0.2)]" key={Math.random()}>
+									<p className="text-center">
+										{moment(chat.date).format("Do MMMM YY")}
+									</p>
+									{messages}
+								</div>
+							);
+						})}
 						<div ref={chatRef} />
 					</ul>
 					<div className="pr-4">
@@ -154,7 +181,7 @@ function MessageBox({ message, userId }: { message: Message; userId: number }) {
 		<li className={`${message.senderId === userId ? "text-right " : " "}`}>
 			<div
 				className={
-					"bg-[rgba(25,147,147,0.2)] group max-w-[50%] text-left relative text-[#0AD5C1] inline-block mb-3 rounded-lg px-1" +
+					"group max-w-[50%] text-left relative text-[#0AD5C1] inline-block mb-3 rounded-lg px-1" +
 					`${message.senderId === userId ? " rounded-tr-none" : " rounded-tl-none"}`
 				}
 			>

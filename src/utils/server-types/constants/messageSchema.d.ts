@@ -133,60 +133,93 @@ export declare const LoadChatOutput: z.ZodObject<{
     message: z.ZodString;
     chatId: z.ZodOptional<z.ZodString>;
     messages: z.ZodOptional<z.ZodArray<z.ZodObject<{
-        id: z.ZodString;
-        sentAt: z.ZodDate;
-        message: z.ZodString;
-        chatId: z.ZodString;
-        senderId: z.ZodNumber;
-        recipientId: z.ZodNumber;
-        viewed: z.ZodBoolean;
-        receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
+        messages: z.ZodArray<z.ZodObject<{
+            id: z.ZodString;
+            sentAt: z.ZodDate;
+            message: z.ZodString;
+            chatId: z.ZodString;
+            senderId: z.ZodNumber;
+            recipientId: z.ZodNumber;
+            viewed: z.ZodBoolean;
+            receivedAt: z.ZodDefault<z.ZodNullable<z.ZodDate>>;
+        }, "strip", z.ZodTypeAny, {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            receivedAt: Date | null;
+            chatId: string;
+        }, {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            chatId: string;
+            receivedAt?: Date | null | undefined;
+        }>, "many">;
+        date: z.ZodDate;
     }, "strip", z.ZodTypeAny, {
-        id: string;
-        message: string;
-        recipientId: number;
-        sentAt: Date;
-        senderId: number;
-        viewed: boolean;
-        receivedAt: Date | null;
-        chatId: string;
+        date: Date;
+        messages: {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            receivedAt: Date | null;
+            chatId: string;
+        }[];
     }, {
-        id: string;
-        message: string;
-        recipientId: number;
-        sentAt: Date;
-        senderId: number;
-        viewed: boolean;
-        chatId: string;
-        receivedAt?: Date | null | undefined;
+        date: Date;
+        messages: {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            chatId: string;
+            receivedAt?: Date | null | undefined;
+        }[];
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     message: string;
     success: boolean;
     chatId?: string | undefined;
     messages?: {
-        id: string;
-        message: string;
-        recipientId: number;
-        sentAt: Date;
-        senderId: number;
-        viewed: boolean;
-        receivedAt: Date | null;
-        chatId: string;
+        date: Date;
+        messages: {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            receivedAt: Date | null;
+            chatId: string;
+        }[];
     }[] | undefined;
 }, {
     message: string;
     success: boolean;
     chatId?: string | undefined;
     messages?: {
-        id: string;
-        message: string;
-        recipientId: number;
-        sentAt: Date;
-        senderId: number;
-        viewed: boolean;
-        chatId: string;
-        receivedAt?: Date | null | undefined;
+        date: Date;
+        messages: {
+            id: string;
+            message: string;
+            recipientId: number;
+            sentAt: Date;
+            senderId: number;
+            viewed: boolean;
+            chatId: string;
+            receivedAt?: Date | null | undefined;
+        }[];
     }[] | undefined;
 }>;
 export declare const AllChatOutput: z.ZodObject<{

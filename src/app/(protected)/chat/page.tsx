@@ -8,50 +8,55 @@ import { useEffect, useState } from "react";
 type Props = {};
 
 function Page({}: Props) {
-	const data = trpc.message.getAllChats.useQuery().data;
-	const [chatData, setChatData] = useState<
-		| {
-				user: {
-					id: number;
-					email: string;
-					username: string;
-				};
-				id: string;
-				createdAt: Date;
-				updatedAt: Date;
-		  }[]
-		| null
-	>(null);
+	const { data, isLoading } = trpc.message.getAllChats.useQuery();
+	const [loading, setLoading] = useState(true);
+	// const [chatData, setChatData] = useState<
+	// 	| {
+	// 			user: {
+	// 				id: number;
+	// 				email: string;
+	// 				username: string;
+	// 			};
+	// 			id: string;
+	// 			createdAt: Date;
+	// 			updatedAt: Date;
+	// 	  }[]
+	// 	| null
+	// >(null);
 	const [currentChatWith, setCurrentChatWith] = useState<number>();
 	console.log("render");
 
-	useEffect(() => {
-		if (data?.chats) setChatData(data.chats);
-	}, []);
+	// useEffect(() => {
+	// 	console.log("effect");
+	// 	if (data?.chats) {
+	// 		console.log("in");
+	// 		// setChatData(data.chats);
+	// 		setLoading(false);
+	// 	}
+	// }, []);
 
 	return (
 		<div className="pb-4 h-[80vh]">
 			<div className="grid grid-cols-[1fr_2fr] ">
 				<div className="pt-2 bg-[rgba(25,147,147,0.2)] p-4">
-					{chatData ? (
-						chatData.length > 0 ? (
-							<>
-								{chatData.map((chat) => (
-									<div
-										key={Math.random()}
-										className="cursor-pointer"
-										onClick={() => {
-											setCurrentChatWith(chat.user.id);
-										}}
-									>
-										{chat.user.username}
-									</div>
-								))}
-							</>
-						) : (
-							<>Start Chatting now!</>
-						)
+					{data && data.chats ? (
+						<>
+							{data.chats.map((chat) => (
+								<div
+									key={Math.random()}
+									className="cursor-pointer"
+									onClick={() => {
+										setCurrentChatWith(chat.user.id);
+									}}
+								>
+									{chat.user.username}
+								</div>
+							))}
+						</>
 					) : (
+						!isLoading && <>Start Chatting now!</>
+					)}
+					{isLoading && (
 						<div className="text-center">
 							<Loader />
 						</div>
