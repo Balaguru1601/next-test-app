@@ -27,8 +27,6 @@ function ChatLayer({ recipientId }: Props) {
 	const toggleResetScroller = () => setResetScroller((prev) => !prev);
 	const chatRef = useRef<HTMLDivElement>(null);
 
-	const [sendingMessage, setSendingMessage] = useState(false);
-
 	const chatData = trpc.message.loadIndividualChat.useMutation();
 	useEffect(() => {
 		console.log("fired!!");
@@ -36,7 +34,6 @@ function ChatLayer({ recipientId }: Props) {
 			{ recipientId },
 			{
 				onSuccess: (data) => {
-					console.log("success");
 					if (data.chatId && data.messages) {
 						setChat({ chatId: data.chatId, messages: data.messages });
 						setMsgList(data.messages);
@@ -59,60 +56,13 @@ function ChatLayer({ recipientId }: Props) {
 		}
 	}, [msgList.length, resetScroller]);
 
-	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
-		onSettled: () => setSendingMessage(false),
-		onSuccess: (data) => {
-			if (data.success && data.chat) {
-				setSendingMessage(false);
-				const sentAt = new Date(data.chat!.sentAt).toISOString();
-				let dateIndex = msgList.findIndex((item) =>
-					moment(new Date(data.chat!.sentAt)).isSame(item.date, "date")
-				);
-				console.log(data.chat!.sentAt);
-				if (dateIndex > -1) {
-					setMsgList((prev) => {
-						const t = [...prev];
-						t.splice(dateIndex, 1, {
-							date: prev[dateIndex].date,
-							messages: [...prev[dateIndex].messages, { ...data.chat!, sentAt }],
-						});
-						return t;
-					});
-					setResetScroller((prev) => !prev);
-				} else {
-					setMsgList((prev) => [
-						...prev,
-						{
-							date: new Date(new Date(data.chat!.sentAt).setHours(0, 0, 0, 0)),
-							messages: [data.chat!],
-						},
-					]);
-				}
-			}
-		},
-	});
-
 	const userId = useAuthStore().userId!;
-
-	const messageHandler = (msg: string) => {
-		if (chat) {
-			setSendingMessage(true);
-			sendMessage.mutate({
-				message: msg,
-				senderId: userId,
-				recipientId,
-				chatId: chat.chatId,
-			});
-		}
-	};
 
 	trpc.message.onSendMessage.useSubscription(undefined, {
 		onData: (data) => {
-			setSendingMessage(false);
 			let dateIndex = msgList.findIndex((item) =>
 				moment.utc(data.sentAt).local().isSame(item.date, "date")
 			);
-			console.log(dateIndex);
 			if (dateIndex > -1) {
 				setMsgList((prev) => {
 					const t = [...prev];
@@ -120,7 +70,6 @@ function ChatLayer({ recipientId }: Props) {
 						date: prev[dateIndex].date,
 						messages: [...prev[dateIndex].messages, data],
 					});
-					console.log(t);
 					return t;
 				});
 				setResetScroller((prev) => !prev);

@@ -36,7 +36,6 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 				let dateIndex = msgList.findIndex((item) =>
 					moment(new Date(data.chat!.sentAt)).isSame(item.date, "date")
 				);
-				console.log(data.chat!.sentAt);
 				if (dateIndex > -1) {
 					setMsgList((prev) => {
 						const t = [...prev];
