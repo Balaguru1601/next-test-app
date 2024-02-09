@@ -64,15 +64,17 @@ function ChatLayer({ recipientId }: Props) {
 				moment.utc(data.sentAt).local().isSame(item.date, "date")
 			);
 			if (dateIndex > -1) {
-				setMsgList((prev) => {
-					const t = [...prev];
-					t.splice(dateIndex, 1, {
-						date: prev[dateIndex].date,
-						messages: [...prev[dateIndex].messages, data],
+				if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
+					setMsgList((prev) => {
+						const t = [...prev];
+						t.splice(dateIndex, 1, {
+							date: prev[dateIndex].date,
+							messages: [...prev[dateIndex].messages, data],
+						});
+						return t;
 					});
-					return t;
-				});
-				setResetScroller((prev) => !prev);
+					setResetScroller((prev) => !prev);
+				}
 			} else {
 				setMsgList((prev) => [
 					...prev,

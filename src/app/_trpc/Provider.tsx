@@ -1,6 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { WebSocketClientOptions, createWSClient, httpBatchLink, splitLink, wsLink } from "@trpc/client";
+import {
+	WebSocketClientOptions,
+	createWSClient,
+	httpBatchLink,
+	splitLink,
+	wsLink,
+} from "@trpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "./trpc";
 import { useAuthStore } from "@/store/zustand";
@@ -32,7 +38,7 @@ const Provider = (props: Props) => {
 				splitLink({
 					condition: (op) => {
 						console.log("fire");
-						return isLoggedIn && op.type === "subscription";
+						return op.type === "subscription";
 					},
 					true: wsClient,
 					false: httpBatchLink({

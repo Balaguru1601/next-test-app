@@ -37,15 +37,21 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 					moment(new Date(data.chat!.sentAt)).isSame(item.date, "date")
 				);
 				if (dateIndex > -1) {
-					setMsgList((prev) => {
-						const t = [...prev];
-						t.splice(dateIndex, 1, {
-							date: prev[dateIndex].date,
-							messages: [...prev[dateIndex].messages, { ...data.chat!, sentAt }],
+					if (
+						!msgList[msgList.length - 1].messages.find(
+							(item) => item.id === data.chat!.id
+						)
+					) {
+						setMsgList((prev) => {
+							const t = [...prev];
+							t.splice(dateIndex, 1, {
+								date: prev[dateIndex].date,
+								messages: [...prev[dateIndex].messages, { ...data.chat!, sentAt }],
+							});
+							return t;
 						});
-						return t;
-					});
-					resetScroller();
+						resetScroller();
+					}
 				} else {
 					setMsgList((prev) => [
 						...prev,
