@@ -9,7 +9,9 @@ type Props = {};
 
 function Page({}: Props) {
 	const { data, isLoading } = trpc.message.getAllChats.useQuery();
+	const { data: onlineUsers } = trpc.user.getOnlineUsers.useQuery();
 	const [loading, setLoading] = useState(true);
+	console.log(onlineUsers);
 	// const [chatData, setChatData] = useState<
 	// 	| {
 	// 			user: {
@@ -39,7 +41,7 @@ function Page({}: Props) {
 		<div className="pb-4 h-[80vh]">
 			<div className="grid grid-cols-[1fr_2fr] ">
 				<div className="pt-2 bg-[rgba(25,147,147,0.2)] p-4">
-					{data && data.chats ? (
+					{data && data.chats?.length && data.chats.length > 0 ? (
 						<>
 							{data.chats.map((chat) => (
 								<div
@@ -54,7 +56,23 @@ function Page({}: Props) {
 							))}
 						</>
 					) : (
-						!isLoading && <>Start Chatting now!</>
+						!isLoading && (
+							<>
+								Start Chatting now!
+								{/* {onlineUsers &&
+									onlineUsers.users?.map((user) => (
+										<div
+											key={Math.random()}
+											className="cursor-pointer"
+											onClick={() => {
+												setCurrentChatWith(user.id);
+											}}
+										>
+											{user.username}
+										</div>
+									))} */}
+							</>
+						)
 					)}
 					{isLoading && (
 						<div className="text-center">

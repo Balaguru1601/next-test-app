@@ -60,6 +60,7 @@ function ChatLayer({ recipientId }: Props) {
 
 	trpc.message.onSendMessage.useSubscription(undefined, {
 		onData: (data) => {
+			console.log("message", data.message);
 			let dateIndex = msgList.findIndex((item) =>
 				moment.utc(data.sentAt).local().isSame(item.date, "date")
 			);
