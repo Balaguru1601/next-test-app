@@ -418,6 +418,48 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                 } | undefined;
             };
         }, unknown>;
+        createChat: import("@trpc/server").BuildProcedure<"mutation", {
+            _config: import("@trpc/server").RootConfig<{
+                ctx: {
+                    req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                    res: import("ws") | import("express").Response<any, Record<string, any>>;
+                };
+                meta: object;
+                errorShape: import("@trpc/server").DefaultErrorShape;
+                transformer: typeof import("superjson").default;
+            }>;
+            _meta: object;
+            _ctx_out: {
+                req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("express").Response<any, Record<string, any>>;
+                user: {
+                    id: number;
+                    email: string;
+                    username: string;
+                    password: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
+            };
+            _input_in: {
+                recipientId: number;
+            };
+            _input_out: {
+                recipientId: number;
+            };
+            _output_in: {
+                message: string;
+                success: boolean;
+                recipientId?: number | undefined;
+                chatId?: string | undefined;
+            };
+            _output_out: {
+                message: string;
+                success: boolean;
+                recipientId?: number | undefined;
+                chatId?: string | undefined;
+            };
+        }, unknown>;
         loadIndividualChat: import("@trpc/server").BuildProcedure<"mutation", {
             _config: import("@trpc/server").RootConfig<{
                 ctx: {

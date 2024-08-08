@@ -1,6 +1,6 @@
 "use client";
 import { trpc } from "@/app/_trpc/trpc";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { customAlphabet } from "nanoid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,9 +9,9 @@ import { useEffect } from "react";
 type Props = {};
 
 export default function ProtectedNavbar({}: Props) {
-	const { logout, isLoggedIn } = useAuthStore();
+	const { logout, isLoggedIn } = useZStore().user;
 	const router = useRouter();
-	const { verify } = useAuthStore();
+	const { verify } = useZStore().user;
 	useEffect(() => {
 		verify();
 	}, []);

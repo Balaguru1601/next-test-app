@@ -1,9 +1,10 @@
 "use client";
 
-import ChatLayer from "@/Components/ChatLayer";
+import ChatLayer from "@/Components/Chat/ChatLayer";
+import ChatSidebar from "@/Components/Chat/ChatSidebar";
 import Loader from "@/Components/Loader";
 import { trpc } from "@/app/_trpc/trpc";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Props = {};
 
@@ -26,7 +27,20 @@ function Page({}: Props) {
 	// 	| null
 	// >(null);
 	const [currentChatWith, setCurrentChatWith] = useState<number>();
-	console.log("render");
+
+	useEffect(() => {
+		console.log("chat change");
+	}, [currentChatWith]);
+
+	const togglePlayer = useCallback((event: KeyboardEvent) => {
+		if (event.key !== "Escape") return;
+		setCurrentChatWith(undefined);
+	}, []);
+
+	useEffect(() => {
+		window.addEventListener("keydown", togglePlayer);
+		return () => window.removeEventListener("keydown", togglePlayer);
+	}, [togglePlayer]);
 
 	// useEffect(() => {
 	// 	console.log("effect");
@@ -39,47 +53,12 @@ function Page({}: Props) {
 
 	return (
 		<div className="pb-4 h-[80vh]">
-			<div className="grid grid-cols-[1fr_2fr] ">
-				<div className="pt-2 bg-[rgba(25,147,147,0.2)] p-4">
-					{data && data.chats?.length && data.chats.length > 0 ? (
-						<>
-							{data.chats.map((chat) => (
-								<div
-									key={Math.random()}
-									className="cursor-pointer"
-									onClick={() => {
-										setCurrentChatWith(chat.user.id);
-									}}
-								>
-									{chat.user.username}
-								</div>
-							))}
-						</>
-					) : (
-						!isLoading && (
-							<>
-								Start Chatting now!
-								{/* {onlineUsers &&
-									onlineUsers.users?.map((user) => (
-										<div
-											key={Math.random()}
-											className="cursor-pointer"
-											onClick={() => {
-												setCurrentChatWith(user.id);
-											}}
-										>
-											{user.username}
-										</div>
-									))} */}
-							</>
-						)
-					)}
-					{isLoading && (
-						<div className="text-center">
-							<Loader />
-						</div>
-					)}
-				</div>
+			<div className="grid grid-cols-[1fr_2fr] " onKeyDown={(e) => console.log(e.key)}>
+				<ChatSidebar
+					isLoading={isLoading}
+					setCurrentChatWith={(t) => setCurrentChatWith(t)}
+					chats={data?.chats}
+				/>
 				<div className=" bg-no-repeat bg-fixed m-0 bg-chat-bg p-2 sm:p-4">
 					{currentChatWith ? <ChatLayer recipientId={currentChatWith} /> : null}
 				</div>

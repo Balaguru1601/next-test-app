@@ -25,6 +25,29 @@ export declare const SendMessageInput: z.ZodObject<{
     senderId: number;
     chatId: string;
 }>;
+export declare const createChatInput: z.ZodObject<{
+    recipientId: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    recipientId: number;
+}, {
+    recipientId: number;
+}>;
+export declare const createChatOutput: z.ZodObject<{
+    recipientId: z.ZodOptional<z.ZodNumber>;
+    chatId: z.ZodOptional<z.ZodString>;
+    message: z.ZodString;
+    success: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    success: boolean;
+    recipientId?: number | undefined;
+    chatId?: string | undefined;
+}, {
+    message: string;
+    success: boolean;
+    recipientId?: number | undefined;
+    chatId?: string | undefined;
+}>;
 export declare const MessageSchema: z.ZodObject<{
     id: z.ZodString;
     sentAt: z.ZodString;

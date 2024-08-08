@@ -1,6 +1,6 @@
 "use client";
 import { trpc } from "@/app/_trpc/trpc";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { customAlphabet } from "nanoid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 type Props = {};
 
 export default function Navbar({}: Props) {
-	const { logout, isLoggedIn, username } = useAuthStore();
+	const { logout, isLoggedIn, username } = useZStore().user;
 	const router = useRouter();
 
 	const backLogout = trpc.user.logout.useMutation({
