@@ -19,5 +19,3 @@ export const MessageSchema = z.object({
 });
 
 export type Message = z.TypeOf<typeof MessageSchema>;
-
-let t: Message;

@@ -38,8 +38,19 @@ export const useAuthStore = create<AuthSlice>()(
 						get().logout();
 					}
 				},
+import { UserStore, createUserSlice } from "./userStore";
+
+export const useZStore = create<UserStore>()(
+	devtools(
+		persist(
+			(...a) => ({
+				...createUserSlice(...a),
 			}),
-			{ name: "auth-store", skipHydration: true }
+			{
+				name: "storage",
+				skipHydration: true,
+				partialize: (state) => ({ user: state.user }),
+			}
 		)
 	)
 );

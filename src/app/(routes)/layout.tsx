@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/Components/Navbar";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 const Layout = (props: Props) => {
 	const [show, setShow] = useState(false);
 	useEffect(() => {
-		useAuthStore.persist.rehydrate();
+		useZStore.persist.rehydrate();
 		setShow(true);
 	}, []);
 

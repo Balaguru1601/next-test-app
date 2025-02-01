@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { httpBatchLink } from "@trpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "./trpc";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import superjson from "superjson";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 
 const Provider = (props: Props) => {
 	const [queryClient] = useState(() => new QueryClient());
-	const { isLoggedIn } = useAuthStore();
+	const { isLoggedIn } = useZStore().user;
 	const [trpcClient] = useState(() =>
 		trpc.createClient({
 			transformer: superjson,

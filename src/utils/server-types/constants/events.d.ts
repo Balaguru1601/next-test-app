@@ -1,5 +1,4 @@
 /// <reference types="node" />
-/// <reference types="node" />
 import { EventEmitter } from "stream";
 export declare const EventTypes: {
     SEND_MESSAGE: string;

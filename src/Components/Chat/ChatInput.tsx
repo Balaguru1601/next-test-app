@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Loader from "./Loader";
-import { useAuthStore } from "@/store/zustand";
+import Loader from "../Loader";
+import { useZStore } from "@/store/zustand";
 import { trpc } from "@/app/_trpc/trpc";
 import moment from "moment";
 import { Message } from "@/constants/messageSchema";
@@ -66,7 +66,7 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 		},
 	});
 
-	const userId = useAuthStore().userId!;
+	const userId = useZStore().user.userId!;
 
 	const messageHandler = (msg: string) => {
 		if (chatId) {
