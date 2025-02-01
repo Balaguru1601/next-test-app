@@ -1,36 +1,34 @@
 "use client";
+import { socket } from "@/app/_socket/socket";
 import { trpc, trpcVanilla } from "@/app/_trpc/trpc";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { AuthSlice } from "./storeTypes";
 
-interface AuthStore {
-	isLoggedIn: boolean;
-	username: string | null;
-	userId: number | null;
-	login: ({ username, userId }: { username: string; userId: number }) => void;
-	logout: () => void;
-	verify: () => void;
-}
-
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthSlice>()(
 	devtools(
 		persist(
 			(set, get) => ({
 				isLoggedIn: false,
 				username: null,
 				userId: null,
-				login: ({ username, userId }) =>
+				login: ({ username, userId }) => {
+					socket.auth = { id: userId };
+					socket.connect();
 					set((state) => ({
 						username,
 						isLoggedIn: true,
 						userId,
-					})),
-				logout: () =>
+					}));
+				},
+				logout: () => {
+					socket.disconnect();
 					set((state) => ({
 						isLoggedIn: false,
 						username: null,
 						userId: null,
-					})),
+					}));
+				},
 				verify: async () => {
 					try {
 						const response = await trpcVanilla.user.verify.query();

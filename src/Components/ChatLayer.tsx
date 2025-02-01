@@ -3,11 +3,12 @@
 import { trpc } from "@/app/_trpc/trpc";
 import { Message } from "@/constants/messageSchema";
 import { useAuthStore } from "@/store/zustand";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { use, useCallback, useEffect, useRef, useState } from "react";
 import Loader from "./Loader";
 import Image from "next/image";
 import moment from "moment";
 import ChatInput from "./ChatInput";
+import { EventTypes, socket } from "@/app/_socket/socket";
 
 type Props = {
 	recipientId: number;
@@ -58,35 +59,82 @@ function ChatLayer({ recipientId }: Props) {
 
 	const userId = useAuthStore().userId!;
 
-	trpc.message.onSendMessage.useSubscription(undefined, {
-		onData: (data) => {
-			console.log("message", data.message);
-			let dateIndex = msgList.findIndex((item) =>
-				moment.utc(data.sentAt).local().isSame(item.date, "date")
-			);
-			if (dateIndex > -1) {
-				if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
-					setMsgList((prev) => {
-						const t = [...prev];
-						t.splice(dateIndex, 1, {
-							date: prev[dateIndex].date,
-							messages: [...prev[dateIndex].messages, data],
+	useEffect(() => {
+		const onReceiveMessage = (data: Message) => {
+			try {
+				const dateIndex = msgList.findIndex((item) =>
+					moment.utc(data.sentAt).local().isSame(item.date, "date")
+				);
+				if (dateIndex > -1) {
+					if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
+						setMsgList((prev) => {
+							const t = [...prev];
+							t.splice(dateIndex, 1, {
+								date: prev[dateIndex].date,
+								messages: [...prev[dateIndex].messages, data],
+							});
+							return t;
 						});
-						return t;
-					});
-					setResetScroller((prev) => !prev);
+						setResetScroller((prev) => !prev);
+					}
+				} else {
+					setMsgList((prev) => [
+						...prev,
+						{
+							date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
+							messages: [data],
+						},
+					]);
 				}
-			} else {
-				setMsgList((prev) => [
-					...prev,
-					{
-						date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
-						messages: [data],
-					},
-				]);
+			} catch (error) {
+				console.log(error);
 			}
-		},
-	});
+		};
+		// BAD: this ties the state of the UI with the time of reception of the
+		// 'foo' events
+		socket.on(EventTypes.SEND_MESSAGE, onReceiveMessage);
+
+		return () => {
+			socket.off(EventTypes.SEND_MESSAGE, onReceiveMessage);
+		};
+	}, [msgList.length]);
+
+	// const onReceiveMessage = useCallback(
+	// 	(data: Message) => {
+	// 		try {
+	// 			console.log("message", data);
+	// 			let dateIndex = msgList.findIndex((item) =>
+	// 				moment.utc(data.sentAt).local().isSame(item.date, "date")
+	// 			);
+	// 			if (dateIndex > -1) {
+	// 				if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
+	// 					setMsgList((prev) => {
+	// 						const t = [...prev];
+	// 						t.splice(dateIndex, 1, {
+	// 							date: prev[dateIndex].date,
+	// 							messages: [...prev[dateIndex].messages, data],
+	// 						});
+	// 						return t;
+	// 					});
+	// 					setResetScroller((prev) => !prev);
+	// 				}
+	// 			} else {
+	// 				setMsgList((prev) => [
+	// 					...prev,
+	// 					{
+	// 						date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
+	// 						messages: [data],
+	// 					},
+	// 				]);
+	// 			}
+	// 		} catch (error) {
+	// 			console.log(error);
+	// 		}
+	// 	},
+	// 	[msgList]
+	// );
+
+	// socket.on(EventTypes.SEND_MESSAGE, onReceiveMessage);
 
 	return (
 		<div className="">
