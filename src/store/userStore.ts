@@ -1,5 +1,6 @@
 import { trpcVanilla } from "@/app/_trpc/trpc";
 import { StateCreator } from "zustand";
+import { StoreType } from "./zustand";
 
 export interface UserStore {
 	user: {
@@ -13,10 +14,11 @@ export interface UserStore {
 }
 
 export const createUserSlice: StateCreator<
-	UserStore,
-	[["zustand/devtools", never], ["zustand/persist", unknown]],
-	[],
-	UserStore
+	StoreType, // store type
+	[["zustand/devtools", never], ["zustand/persist", unknown]], //middlewares being used
+	// [],
+	[], // no extra arguments
+	UserStore // return type
 > = (set, get) => ({
 	user: {
 		isLoggedIn: false,
@@ -24,7 +26,6 @@ export const createUserSlice: StateCreator<
 		userId: null,
 		login: ({ username, userId }) =>
 			set((state) => ({
-				...state,
 				user: {
 					...state.user,
 					username,
@@ -34,7 +35,6 @@ export const createUserSlice: StateCreator<
 			})),
 		logout: () =>
 			set((state) => ({
-				...state,
 				user: {
 					...state.user,
 					isLoggedIn: false,

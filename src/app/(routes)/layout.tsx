@@ -11,7 +11,9 @@ type Props = {
 const Layout = (props: Props) => {
 	const [show, setShow] = useState(false);
 	useEffect(() => {
+		console.log("Layout");
 		useZStore.persist.rehydrate();
+		console.log(useZStore.getState());
 		setShow(true);
 	}, []);
 

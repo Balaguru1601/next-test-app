@@ -110,7 +110,9 @@ function ChatLayer({ recipientId }: Props) {
 							return (
 								<div className="" key={Math.random()}>
 									<p className="text-center my-4">
-										{moment(chat.date).format("Do MMM YY")}
+										{moment(chat.date).isSame(moment(), "D")
+											? "TODAY"
+											: moment(chat.date).format("Do MMM YY")}
 									</p>
 									{messages}
 								</div>

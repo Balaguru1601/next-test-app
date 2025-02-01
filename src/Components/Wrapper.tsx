@@ -3,7 +3,7 @@
 import Navbar from "@/Components/Navbar";
 import Provider from "@/app/_trpc/Provider";
 import { trpcVanilla } from "@/app/_trpc/trpc";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -14,8 +14,8 @@ let initial = true;
 
 async function hydrator() {
 	try {
-		await useAuthStore.persist.rehydrate();
-		useAuthStore.getState().verify();
+		await useZStore.persist.rehydrate();
+		useZStore.getState().user.verify();
 	} catch (error) {
 		console.log(error);
 	}
@@ -23,7 +23,7 @@ async function hydrator() {
 
 const Wrapper = (props: Props) => {
 	const [show, setShow] = useState(false);
-	const { isLoggedIn } = useAuthStore();
+	const { isLoggedIn } = useZStore().user;
 	useEffect(() => {
 		if (initial) {
 			if (isLoggedIn) trpcVanilla.user.setUserOnline.query();

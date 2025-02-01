@@ -50,6 +50,7 @@ const SignUp = (props: Props) => {
 	const loginUser = trpc.user.login.useMutation({
 		onSuccess: (data) => {
 			if (data.success && data.username && data.userId) {
+				console.log(data);
 				login({ username: data.username, userId: data.userId });
 				router.push("/secret");
 			} else if (data.success === false) {

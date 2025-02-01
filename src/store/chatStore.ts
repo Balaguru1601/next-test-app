@@ -2,6 +2,7 @@ import { trpcVanilla } from "@/app/_trpc/trpc";
 import { StateCreator } from "zustand";
 import { UserStore } from "./userStore";
 import { Message } from "@/constants/messageSchema";
+import { StoreType } from "./zustand";
 
 export interface ChatStore {
 	chatData: {
@@ -17,9 +18,10 @@ export interface ChatStore {
 	};
 }
 
-export const createUserSlice: StateCreator<
-	ChatStore & UserStore,
+export const createChatSlice: StateCreator<
+	StoreType,
 	[["zustand/devtools", never], ["zustand/persist", unknown]],
+	// [],
 	[],
 	ChatStore
 > = (set, get) => ({

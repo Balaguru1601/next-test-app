@@ -37,7 +37,6 @@ const Provider = (props: Props) => {
 			links: [
 				splitLink({
 					condition: (op) => {
-						console.log("fire");
 						return op.type === "subscription";
 					},
 					true: wsClient,

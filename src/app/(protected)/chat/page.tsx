@@ -12,7 +12,7 @@ function Page({}: Props) {
 	const { data, isLoading } = trpc.message.getAllChats.useQuery();
 	const { data: onlineUsers } = trpc.user.getOnlineUsers.useQuery();
 	const [loading, setLoading] = useState(true);
-	console.log(onlineUsers);
+	// console.log(onlineUsers);
 	// const [chatData, setChatData] = useState<
 	// 	| {
 	// 			user: {
@@ -53,7 +53,10 @@ function Page({}: Props) {
 
 	return (
 		<div className="pb-4 h-[80vh]">
-			<div className="grid grid-cols-[1fr_2fr] " onKeyDown={(e) => console.log(e.key)}>
+			<div
+				className="grid grid-cols-[1fr_2fr] "
+				// onKeyDown={(e) => console.log(e.key)}
+			>
 				<ChatSidebar
 					isLoading={isLoading}
 					setCurrentChatWith={(t) => setCurrentChatWith(t)}
