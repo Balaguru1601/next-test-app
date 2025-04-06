@@ -1,32 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import {
-	WebSocketClientOptions,
-	createWSClient,
-	httpBatchLink,
-	splitLink,
-	wsLink,
-} from "@trpc/client";
+import React, { useState } from "react";
+import { httpBatchLink } from "@trpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "./trpc";
-import { useZStore } from "@/store/zustand";
+import { useAuthStore } from "@/store/zustand";
 import superjson from "superjson";
 
 type Props = {
 	children: React.ReactNode;
 };
-
-const wsClient = wsLink({
-	client: createWSClient({
-		url: "ws://localhost:8080/trpc",
-		onOpen: () => {
-			console.log("Web socket connection established!");
-		},
-		onClose: () => {
-			console.log("Web socket connection closed");
-		},
-	}),
-});
 
 const Provider = (props: Props) => {
 	const [queryClient] = useState(() => new QueryClient());
@@ -35,20 +17,14 @@ const Provider = (props: Props) => {
 		trpc.createClient({
 			transformer: superjson,
 			links: [
-				splitLink({
-					condition: (op) => {
-						return op.type === "subscription";
+				httpBatchLink({
+					url: "http://localhost:8080/trpc",
+					fetch(url, options) {
+						return fetch(url, {
+							...options,
+							credentials: "include",
+						});
 					},
-					true: wsClient,
-					false: httpBatchLink({
-						url: "http://localhost:8080/trpc",
-						fetch(url, options) {
-							return fetch(url, {
-								...options,
-								credentials: "include",
-							});
-						},
-					}),
 				}),
 			],
 		})

@@ -6,7 +6,7 @@ import { StoreType } from "./zustand";
 
 export interface ChatStore {
 	chatData: {
-		chat: {
+		chats: {
 			[chatId: string]: Message[];
 		};
 		addChat: (data: { chatId: string; messages: Message[] }) => void;
@@ -21,19 +21,18 @@ export interface ChatStore {
 export const createChatSlice: StateCreator<
 	StoreType,
 	[["zustand/devtools", never], ["zustand/persist", unknown]],
-	// [],
 	[],
 	ChatStore
 > = (set, get) => ({
 	chatData: {
-		chat: {},
+		chats: {},
 		addChat({ chatId, messages }) {
 			set((state) => ({
 				...state,
 				chatData: {
 					...state.chatData,
 					chat: {
-						...state.chatData.chat,
+						...state.chatData.chats,
 						[chatId]: messages,
 					},
 				},
@@ -49,7 +48,7 @@ export const createChatSlice: StateCreator<
 			}));
 		},
 		deleteChat(chatId) {
-			const chats = get().chatData.chat;
+			const chats = get().chatData.chats;
 			delete chats[chatId];
 			set((state) => ({
 				...state,
@@ -60,7 +59,7 @@ export const createChatSlice: StateCreator<
 			}));
 		},
 		appendMessage(chatId, messages) {
-			const chats = get().chatData.chat;
+			const chats = get().chatData.chats;
 			chats[chatId] = [...chats[chatId], ...messages];
 			set((state) => ({
 				...state,
@@ -71,7 +70,7 @@ export const createChatSlice: StateCreator<
 			}));
 		},
 		deleteMessage(chatId, messageId) {
-			const msgs = get().chatData.chat[chatId];
+			const msgs = get().chatData.chats[chatId];
 			const index = msgs.findIndex((itm) => itm.id === messageId);
 			msgs.splice(index, 1);
 			set((state) => ({
@@ -79,14 +78,14 @@ export const createChatSlice: StateCreator<
 				chatData: {
 					...state.chatData,
 					chat: {
-						...state.chatData.chat,
+						...state.chatData.chats,
 						[chatId]: msgs,
 					},
 				},
 			}));
 		},
 		editMessage(chatId, messageId, message) {
-			const msgs = get().chatData.chat[chatId];
+			const msgs = get().chatData.chats[chatId];
 			const index = msgs.findIndex((itm) => itm.id === messageId);
 			msgs[index].message = message;
 			set((state) => ({
@@ -94,7 +93,7 @@ export const createChatSlice: StateCreator<
 				chatData: {
 					...state.chatData,
 					chat: {
-						...state.chatData.chat,
+						...state.chatData.chats,
 						[chatId]: msgs,
 					},
 				},
@@ -102,3 +101,44 @@ export const createChatSlice: StateCreator<
 		},
 	},
 });
+// import { create, StateCreator } from "zustand";
+// import { ChatSlice } from "./storeTypes";
+
+// export const createChatSlice: StateCreator<ChatSlice> = (set, get) => ({
+// 	chats: {},
+// 	createChat({ chatId, recipientId, lastSeen, online }) {
+// 		return set((state) => ({
+// 			...state,
+// 			chats: {
+// 				...state.chats,
+// 				[chatId]: { recipientId, read: [], unread: [], online, lastSeen },
+// 			},
+// 		}));
+// 	},
+// 	deleteChat(chatId) {
+// 		const chats = get().chats;
+// 		delete chats[chatId];
+// 		return set((state) => ({ ...state, chats }));
+// 	},
+// 	pushMessage(chatId, message) {
+// 		get().chats[chatId].unread.push(message);
+// 	},
+// 	deleteMessage(chatId, messageId) {
+// 		const chats = get().chats;
+// 		const msgIndex = chats[chatId].read.findIndex((item) => item.id === messageId);
+// 		chats[chatId].read.splice(msgIndex, 1);
+// 		return set((state) => ({ ...state, chats }));
+// 	},
+// 	setOnline(chatId, value) {
+// 		return set((state) => ({
+// 			...state,
+// 			chats: { ...state.chats, [chatId]: { ...state.chats[chatId], online: value } },
+// 		}));
+// 	},
+// 	setLastSeen(chatId, value) {
+// 		return set((state) => ({
+// 			...state,
+// 			chats: { ...state.chats, [chatId]: { ...state.chats[chatId], lastSeen: value } },
+// 		}));
+// 	},
+// });
