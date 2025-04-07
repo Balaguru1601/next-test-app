@@ -9,6 +9,7 @@ import Image from "next/image";
 import moment from "moment";
 import ChatInput from "./ChatInput";
 import MessageBox from "./MessageBox";
+import { EventTypes, socket } from "@/app/_socket/socket";
 
 type Props = {
 	recipientId: number;
@@ -21,24 +22,24 @@ function ChatLayer({ recipientId }: Props) {
 	const [chat, setChat] = useState<{
 		chatId: string;
 		messages: { date: Date; messages: Message[] }[];
-	} | null>(() => {
-		return null;
-	});
+	} | null>(null);
 
 	const toggleResetScroller = () => setResetScroller((prev) => !prev);
-	const loaderSet = () => setLoading(true);
 	const chatRef = useRef<HTMLDivElement>(null);
 
 	const chatData = trpc.message.loadIndividualChat.useMutation();
 	useEffect(() => {
+		setLoading(true);
 		chatData.mutate(
 			{ recipientId },
 			{
 				onSuccess: (data) => {
 					if (data.chatId && data.messages) {
+						console.log(data.messages);
 						setChat({ chatId: data.chatId, messages: data.messages });
 						setMsgList(data.messages);
 						toggleResetScroller();
+						console.log("chat data hydrated");
 					}
 					setLoading(false);
 					return;
@@ -58,41 +59,78 @@ function ChatLayer({ recipientId }: Props) {
 		}
 	}, [msgList.length, resetScroller]);
 
-	useEffect(() => {
-		loaderSet();
-	}, [recipientId]);
-
 	const userId = useZStore().user.userId!;
 
-	trpc.message.onSendMessage.useSubscription(undefined, {
-		onData: (data) => {
-			console.log("message", data.message);
-			let dateIndex = msgList.findIndex((item) =>
-				moment.utc(data.sentAt).local().isSame(item.date, "date")
-			);
-			if (dateIndex > -1) {
-				if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
-					setMsgList((prev) => {
-						const t = [...prev];
+	useEffect(() => {
+		const handleNewMessage = (data: Message) => {
+			console.log("📨 message : ", data);
+			if (!chat || data.chatId !== chat.chatId) return;
+			setMsgList((prev) => {
+				const t = [...prev];
+				// find the index of the date in the msgList
+				// if the date exists, add the message to the messages array
+				const dateIndex = t.findIndex((item) =>
+					moment.utc(data.sentAt).local().isSame(item.date, "date")
+				);
+
+				console.log("dateIndex", dateIndex);
+
+				if (dateIndex > -1) {
+					if (!t[dateIndex].messages.find((item) => item.id === data.id)) {
 						t.splice(dateIndex, 1, {
 							date: prev[dateIndex].date,
 							messages: [...prev[dateIndex].messages, data],
 						});
-						return t;
-					});
-					setResetScroller((prev) => !prev);
-				}
-			} else {
-				setMsgList((prev) => [
-					...prev,
-					{
+					}
+				} else {
+					t.push({
 						date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
 						messages: [data],
-					},
-				]);
-			}
-		},
-	});
+					});
+				}
+
+				return t;
+			});
+			toggleResetScroller();
+		};
+
+		socket.on(EventTypes.SEND_MESSAGE, handleNewMessage);
+
+		// Cleanup on unmount
+		return () => {
+			socket.off(EventTypes.SEND_MESSAGE, handleNewMessage);
+		};
+	}, []);
+
+	// trpc.message.onSendMessage.useSubscription(undefined, {
+	// 	onData: (data) => {
+	// 		console.log("message", data.message);
+	// 		let dateIndex = msgList.findIndex((item) =>
+	// 			moment.utc(data.sentAt).local().isSame(item.date, "date")
+	// 		);
+	// 		if (dateIndex > -1) {
+	// 			if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
+	// 				setMsgList((prev) => {
+	// 					const t = [...prev];
+	// 					t.splice(dateIndex, 1, {
+	// 						date: prev[dateIndex].date,
+	// 						messages: [...prev[dateIndex].messages, data],
+	// 					});
+	// 					return t;
+	// 				});
+	// 				setResetScroller((prev) => !prev);
+	// 			}
+	// 		} else {
+	// 			setMsgList((prev) => [
+	// 				...prev,
+	// 				{
+	// 					date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
+	// 					messages: [data],
+	// 				},
+	// 			]);
+	// 		}
+	// 	},
+	// });
 
 	return (
 		<div className="">
@@ -107,6 +145,7 @@ function ChatLayer({ recipientId }: Props) {
 							const messages = chat.messages.map((msg) => (
 								<MessageBox message={msg} userId={userId} key={Math.random()} />
 							));
+							// console.log(chat);
 							return (
 								<div className="" key={Math.random()}>
 									<p className="text-center my-4">

@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { httpBatchLink } from "@trpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc } from "./trpc";
-import { useAuthStore } from "@/store/zustand";
+// import { useAuthStore } from "@/store/zustand";
 import superjson from "superjson";
+import { useZStore } from "@/store/zustand";
 
 type Props = {
 	children: React.ReactNode;
