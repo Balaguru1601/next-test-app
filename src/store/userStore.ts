@@ -14,6 +14,8 @@ export interface UserStore {
 	};
 }
 
+// TODO - check if token works after refresh, reload
+
 // isLoggedIn: false,
 // 				username: null,
 // 				userId: null,

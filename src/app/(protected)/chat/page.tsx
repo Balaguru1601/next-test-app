@@ -51,6 +51,11 @@ function Page({}: Props) {
 	// 	}
 	// }, []);
 
+	// TODO - get all the messages of the user here and set it to the chatData state
+	// TODO - Show users are online and offline
+	// TODO - track last seen of the user
+	// TODO - add a search bar to search for users
+
 	return (
 		<div className="pb-4 h-[80vh]">
 			<div

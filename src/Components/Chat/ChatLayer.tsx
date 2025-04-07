@@ -15,6 +15,12 @@ type Props = {
 	recipientId: number;
 };
 
+// TODO - change the way we get messages, get all messages rather than individual chat
+// TODO - make the message options to work
+// TODO - use onmessagedelete and onmessageupdate to update the message in the chat - socket.io
+// TODO - add typing to the chat input
+// TODO - add emoji picker to the chat input
+
 function ChatLayer({ recipientId }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [resetScroller, setResetScroller] = useState(false);
@@ -72,8 +78,6 @@ function ChatLayer({ recipientId }: Props) {
 				const dateIndex = t.findIndex((item) =>
 					moment.utc(data.sentAt).local().isSame(item.date, "date")
 				);
-
-				console.log("dateIndex", dateIndex);
 
 				if (dateIndex > -1) {
 					if (!t[dateIndex].messages.find((item) => item.id === data.id)) {
