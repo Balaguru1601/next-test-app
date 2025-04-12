@@ -1,11 +1,52 @@
+import { trpc } from "@/app/_trpc/trpc";
 import { Message } from "@/constants/messageSchema";
 import moment from "moment";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function MessageBox({ message, userId }: { message: Message; userId: number }) {
+export default function MessageBox({
+	message,
+	userId,
+	handleSelfDeleteMessage,
+}: {
+	message: Message;
+	userId: number;
+	handleSelfDeleteMessage: (message: Message) => void;
+}) {
 	const [showOptions, setShowOptions] = useState(false);
 
 	const optionsRef = useRef<HTMLDivElement>(null);
+
+	const deleteMessage = trpc.message.deleteMessage.useMutation({
+		onSuccess: (data) => {
+			if (data.success) {
+				console.log("message deleted successfully");
+				handleSelfDeleteMessage(message);
+			} else {
+				console.log("message not deleted");
+			}
+		},
+	});
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (optionsRef.current && !optionsRef.current.contains(event.target as Node)) {
+				setShowOptions(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				setShowOptions(false);
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+			document.removeEventListener("keydown", handleKeyDown);
+		};
+	}, []);
 
 	function toggleShowOption(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		e.preventDefault();
@@ -31,10 +72,16 @@ export default function MessageBox({ message, userId }: { message: Message; user
 				<div className="flex z-0">
 					<p
 						className={`py-1 pr-2 text-lg pl-2 ${
-							message.senderId === userId ? " text-[#0AD5C1]" : "text-[#0EC879]"
+							message.senderId == userId ? " text-[#0AD5C1]" : "text-[#0EC879]"
 						} `}
 					>
-						{message.message}
+						{message.deletionScope !== "ALL"
+							? message.message
+							: `${
+									message.senderId == userId
+										? "You deleted this message"
+										: "This message was deleted"
+							  }`}
 					</p>
 					<small className="self-end text-[0.6rem] pr-1 pb-1">{messageSentAt}</small>
 					{message.senderId == userId && (
@@ -83,10 +130,6 @@ export default function MessageBox({ message, userId }: { message: Message; user
 					} group-hover:z-10`}
 					tabIndex={-1}
 					ref={optionsRef}
-					onBlur={(e) => {
-						e.stopPropagation();
-						setShowOptions(false);
-					}}
 					onClick={toggleShowOption}
 				>
 					<svg
@@ -108,21 +151,43 @@ export default function MessageBox({ message, userId }: { message: Message; user
 							`${showOptions ? " border border-gray-400" : ""}`
 						}
 					>
-						{showOptions && (
+						{!(message.deletionScope === "ALL") && showOptions && (
 							<>
 								<button
 									className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
 									title=""
+									onClick={(e) => {
+										console.log("clicked delete message", message);
+										deleteMessage.mutate({
+											message: message,
+											all: false,
+										});
+									}}
 								>
-									Delete
+									Delete for me
 								</button>
 								{message.senderId === userId && (
-									<button
-										className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
-										title=""
-									>
-										Edit
-									</button>
+									<>
+										<button
+											className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
+											title=""
+										>
+											Edit
+										</button>
+										<button
+											className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
+											title=""
+											onClick={(e) => {
+												console.log("clicked delete message", message);
+												deleteMessage.mutate({
+													message: message,
+													all: true,
+												});
+											}}
+										>
+											Delete for everyone
+										</button>
+									</>
 								)}
 							</>
 						)}

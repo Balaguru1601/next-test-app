@@ -41,7 +41,6 @@ function ChatLayer({ recipientId }: Props) {
 			{
 				onSuccess: (data) => {
 					if (data.chatId && data.messages) {
-						console.log(data.messages);
 						setChat({ chatId: data.chatId, messages: data.messages });
 						setMsgList(data.messages);
 						toggleResetScroller();
@@ -68,17 +67,17 @@ function ChatLayer({ recipientId }: Props) {
 	const userId = useZStore().user.userId!;
 
 	useEffect(() => {
+		// console.log("effect for handle msgs");
 		const handleNewMessage = (data: Message) => {
-			console.log("📨 message : ", data);
-			if (!chat || data.chatId !== chat.chatId) return;
+			console.log("📨 incoming message : ", data);
 			setMsgList((prev) => {
+				if (!chat || data.chatId !== chat.chatId) return prev;
 				const t = [...prev];
 				// find the index of the date in the msgList
 				// if the date exists, add the message to the messages array
 				const dateIndex = t.findIndex((item) =>
 					moment.utc(data.sentAt).local().isSame(item.date, "date")
 				);
-
 				if (dateIndex > -1) {
 					if (!t[dateIndex].messages.find((item) => item.id === data.id)) {
 						t.splice(dateIndex, 1, {
@@ -100,11 +99,66 @@ function ChatLayer({ recipientId }: Props) {
 
 		socket.on(EventTypes.SEND_MESSAGE, handleNewMessage);
 
+		const handleAllDeleteMessage = (data: { success: boolean; message: Message }) => {
+			console.log("📨 - all message  deleted : ", data);
+			const { message } = data;
+			if (!data.success) return;
+
+			setMsgList((prev) => {
+				if (!chat || message.chatId !== chat.chatId) return prev;
+				const t = [...prev];
+				// find the index of the date in the msgList
+				// if the date exists, add the message to the messages array
+				const dateIndex = t.findIndex((item) =>
+					moment.utc(message.sentAt).local().isSame(item.date, "date")
+				);
+
+				if (dateIndex > -1) {
+					const msgIndex = t[dateIndex].messages.findIndex(
+						(item) => item.id === message.id
+					);
+					if (msgIndex > -1) {
+						t[dateIndex].messages.splice(msgIndex, 1);
+					}
+					if (t[dateIndex].messages.length === 0) {
+						t.splice(dateIndex, 1);
+					}
+				}
+				return t;
+			});
+			toggleResetScroller();
+		};
+		socket.on(EventTypes.DETELE_MESSAGE, handleAllDeleteMessage);
+
 		// Cleanup on unmount
 		return () => {
 			socket.off(EventTypes.SEND_MESSAGE, handleNewMessage);
 		};
-	}, []);
+	}, [chat]);
+
+	const handleSelfDeleteMessage = (data: Message) => {
+		console.log("📨 message deleted : ", data);
+		setMsgList((prev) => {
+			if (!chat || data.chatId !== chat.chatId) return prev;
+			const t = [...prev];
+			// find the index of the date in the msgList
+			// if the date exists, add the message to the messages array
+			const dateIndex = t.findIndex((item) =>
+				moment.utc(data.sentAt).local().isSame(item.date, "date")
+			);
+
+			if (dateIndex > -1) {
+				const msgIndex = t[dateIndex].messages.findIndex((item) => item.id === data.id);
+				if (msgIndex > -1) {
+					t[dateIndex].messages.splice(msgIndex, 1);
+				}
+				if (t[dateIndex].messages.length === 0) {
+					t.splice(dateIndex, 1);
+				}
+			}
+			return t;
+		});
+	};
 
 	// trpc.message.onSendMessage.useSubscription(undefined, {
 	// 	onData: (data) => {
@@ -146,20 +200,29 @@ function ChatLayer({ recipientId }: Props) {
 				<>
 					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:px-8  md:px-12 pb-0 max-h-[80vh]">
 						{msgList.map((chat) => {
-							const messages = chat.messages.map((msg) => (
-								<MessageBox message={msg} userId={userId} key={Math.random()} />
-							));
-							// console.log(chat);
-							return (
-								<div className="" key={Math.random()}>
-									<p className="text-center my-4">
-										{moment(chat.date).isSame(moment(), "D")
-											? "TODAY"
-											: moment(chat.date).format("Do MMM YY")}
-									</p>
-									{messages}
-								</div>
-							);
+							// console.log("chat", chat);
+							const messages = chat.messages.map((msg) => {
+								if (msg.deletedBy !== userId && msg.deletionScope !== "ALL")
+									return (
+										<MessageBox
+											message={msg}
+											userId={userId}
+											key={Math.random()}
+											handleSelfDeleteMessage={handleSelfDeleteMessage}
+										/>
+									);
+							});
+							if (messages.length)
+								return (
+									<div className="" key={Math.random()}>
+										<p className="text-center my-4">
+											{moment(chat.date).isSame(moment(), "D")
+												? "TODAY"
+												: moment(chat.date).format("Do MMM YY")}
+										</p>
+										{messages}
+									</div>
+								);
 						})}
 						<div ref={chatRef} />
 					</ul>

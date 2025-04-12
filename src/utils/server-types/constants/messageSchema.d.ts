@@ -57,6 +57,9 @@ export declare const MessageSchema: z.ZodObject<{
     recipientId: z.ZodNumber;
     viewed: z.ZodBoolean;
     receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+    deletedBy: z.ZodDefault<z.ZodNullable<z.ZodNumber>>;
+    deletedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+    deletionScope: z.ZodDefault<z.ZodNullable<z.ZodEnum<["ALL", "SELF"]>>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     message: string;
@@ -65,7 +68,10 @@ export declare const MessageSchema: z.ZodObject<{
     senderId: number;
     viewed: boolean;
     receivedAt: string | null;
+    deletionScope: "SELF" | "ALL" | null;
+    deletedAt: string | null;
     chatId: string;
+    deletedBy: number | null;
 }, {
     id: string;
     message: string;
@@ -75,6 +81,9 @@ export declare const MessageSchema: z.ZodObject<{
     viewed: boolean;
     chatId: string;
     receivedAt?: string | null | undefined;
+    deletedBy?: number | null | undefined;
+    deletedAt?: string | null | undefined;
+    deletionScope?: "SELF" | "ALL" | null | undefined;
 }>;
 export declare const SendMessageOutput: z.ZodObject<{
     success: z.ZodBoolean;
@@ -87,7 +96,10 @@ export declare const SendMessageOutput: z.ZodObject<{
         senderId: z.ZodNumber;
         recipientId: z.ZodNumber;
         viewed: z.ZodBoolean;
-        receivedAt: z.ZodNullable<z.ZodString>;
+        receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+        deletedBy: z.ZodDefault<z.ZodNullable<z.ZodNumber>>;
+        deletedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+        deletionScope: z.ZodDefault<z.ZodNullable<z.ZodEnum<["ALL", "SELF"]>>>;
     }, "strip", z.ZodTypeAny, {
         id: string;
         message: string;
@@ -96,7 +108,10 @@ export declare const SendMessageOutput: z.ZodObject<{
         senderId: number;
         viewed: boolean;
         receivedAt: string | null;
+        deletionScope: "SELF" | "ALL" | null;
+        deletedAt: string | null;
         chatId: string;
+        deletedBy: number | null;
     }, {
         id: string;
         message: string;
@@ -104,8 +119,11 @@ export declare const SendMessageOutput: z.ZodObject<{
         sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: string | null;
         chatId: string;
+        receivedAt?: string | null | undefined;
+        deletedBy?: number | null | undefined;
+        deletedAt?: string | null | undefined;
+        deletionScope?: "SELF" | "ALL" | null | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
     message: string;
@@ -118,7 +136,10 @@ export declare const SendMessageOutput: z.ZodObject<{
         senderId: number;
         viewed: boolean;
         receivedAt: string | null;
+        deletionScope: "SELF" | "ALL" | null;
+        deletedAt: string | null;
         chatId: string;
+        deletedBy: number | null;
     } | undefined;
 }, {
     message: string;
@@ -130,8 +151,11 @@ export declare const SendMessageOutput: z.ZodObject<{
         sentAt: string;
         senderId: number;
         viewed: boolean;
-        receivedAt: string | null;
         chatId: string;
+        receivedAt?: string | null | undefined;
+        deletedBy?: number | null | undefined;
+        deletedAt?: string | null | undefined;
+        deletionScope?: "SELF" | "ALL" | null | undefined;
     } | undefined;
 }>;
 export declare const LoadChatInput: z.ZodObject<{
@@ -155,6 +179,9 @@ export declare const LoadChatOutput: z.ZodObject<{
             recipientId: z.ZodNumber;
             viewed: z.ZodBoolean;
             receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+            deletedBy: z.ZodDefault<z.ZodNullable<z.ZodNumber>>;
+            deletedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+            deletionScope: z.ZodDefault<z.ZodNullable<z.ZodEnum<["ALL", "SELF"]>>>;
         }, "strip", z.ZodTypeAny, {
             id: string;
             message: string;
@@ -163,7 +190,10 @@ export declare const LoadChatOutput: z.ZodObject<{
             senderId: number;
             viewed: boolean;
             receivedAt: string | null;
+            deletionScope: "SELF" | "ALL" | null;
+            deletedAt: string | null;
             chatId: string;
+            deletedBy: number | null;
         }, {
             id: string;
             message: string;
@@ -173,6 +203,9 @@ export declare const LoadChatOutput: z.ZodObject<{
             viewed: boolean;
             chatId: string;
             receivedAt?: string | null | undefined;
+            deletedBy?: number | null | undefined;
+            deletedAt?: string | null | undefined;
+            deletionScope?: "SELF" | "ALL" | null | undefined;
         }>, "many">;
         date: z.ZodDate;
     }, "strip", z.ZodTypeAny, {
@@ -185,7 +218,10 @@ export declare const LoadChatOutput: z.ZodObject<{
             senderId: number;
             viewed: boolean;
             receivedAt: string | null;
+            deletionScope: "SELF" | "ALL" | null;
+            deletedAt: string | null;
             chatId: string;
+            deletedBy: number | null;
         }[];
     }, {
         date: Date;
@@ -198,6 +234,9 @@ export declare const LoadChatOutput: z.ZodObject<{
             viewed: boolean;
             chatId: string;
             receivedAt?: string | null | undefined;
+            deletedBy?: number | null | undefined;
+            deletedAt?: string | null | undefined;
+            deletionScope?: "SELF" | "ALL" | null | undefined;
         }[];
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
@@ -214,7 +253,10 @@ export declare const LoadChatOutput: z.ZodObject<{
             senderId: number;
             viewed: boolean;
             receivedAt: string | null;
+            deletionScope: "SELF" | "ALL" | null;
+            deletedAt: string | null;
             chatId: string;
+            deletedBy: number | null;
         }[];
     }[] | undefined;
 }, {
@@ -232,6 +274,9 @@ export declare const LoadChatOutput: z.ZodObject<{
             viewed: boolean;
             chatId: string;
             receivedAt?: string | null | undefined;
+            deletedBy?: number | null | undefined;
+            deletedAt?: string | null | undefined;
+            deletionScope?: "SELF" | "ALL" | null | undefined;
         }[];
     }[] | undefined;
 }>;
@@ -311,4 +356,84 @@ export interface ProcessedChat {
     createdAt: Date;
     updatedAt: Date;
 }
+export declare const deleteMessageInput: z.ZodObject<{
+    message: z.ZodObject<{
+        id: z.ZodString;
+        sentAt: z.ZodString;
+        message: z.ZodString;
+        chatId: z.ZodString;
+        senderId: z.ZodNumber;
+        recipientId: z.ZodNumber;
+        viewed: z.ZodBoolean;
+        receivedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+        deletedBy: z.ZodDefault<z.ZodNullable<z.ZodNumber>>;
+        deletedAt: z.ZodDefault<z.ZodNullable<z.ZodString>>;
+        deletionScope: z.ZodDefault<z.ZodNullable<z.ZodEnum<["ALL", "SELF"]>>>;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        message: string;
+        recipientId: number;
+        sentAt: string;
+        senderId: number;
+        viewed: boolean;
+        receivedAt: string | null;
+        deletionScope: "SELF" | "ALL" | null;
+        deletedAt: string | null;
+        chatId: string;
+        deletedBy: number | null;
+    }, {
+        id: string;
+        message: string;
+        recipientId: number;
+        sentAt: string;
+        senderId: number;
+        viewed: boolean;
+        chatId: string;
+        receivedAt?: string | null | undefined;
+        deletedBy?: number | null | undefined;
+        deletedAt?: string | null | undefined;
+        deletionScope?: "SELF" | "ALL" | null | undefined;
+    }>;
+    all: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    message: {
+        id: string;
+        message: string;
+        recipientId: number;
+        sentAt: string;
+        senderId: number;
+        viewed: boolean;
+        receivedAt: string | null;
+        deletionScope: "SELF" | "ALL" | null;
+        deletedAt: string | null;
+        chatId: string;
+        deletedBy: number | null;
+    };
+    all: boolean;
+}, {
+    message: {
+        id: string;
+        message: string;
+        recipientId: number;
+        sentAt: string;
+        senderId: number;
+        viewed: boolean;
+        chatId: string;
+        receivedAt?: string | null | undefined;
+        deletedBy?: number | null | undefined;
+        deletedAt?: string | null | undefined;
+        deletionScope?: "SELF" | "ALL" | null | undefined;
+    };
+    all: boolean;
+}>;
+export declare const deleteMessageOutput: z.ZodObject<{
+    success: z.ZodBoolean;
+    message: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    message: string;
+    success: boolean;
+}, {
+    message: string;
+    success: boolean;
+}>;
 export type Message = z.TypeOf<typeof MessageSchema>;

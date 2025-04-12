@@ -11,7 +11,7 @@ type Props = {
 	children: React.ReactNode;
 };
 
-let initial = true;
+// TODO - chekc if the initial error printing on console for the verify does not log in production
 
 async function hydrator() {
 	try {
@@ -40,19 +40,25 @@ const Wrapper = (props: Props) => {
 
 	const hasInitialized = useRef(false);
 
+	// TODO - check if isloggedin should be in the dependency array
+
 	useEffect(() => {
-		if (!hasInitialized.current) {
-			if (isLoggedIn) {
-				trpcVanilla.user.setUserOnline.query(); // ✅ use mutation if appropriate
-				socket.connect();
-			}
-			hasInitialized.current = true;
+		// if (!hasInitialized.current) {
+		if (isLoggedIn) {
+			console.log("wrapper initialized");
+			trpcVanilla.user.setUserOnline.query();
+			socket.auth = { id: useZStore.getState().user.userId! };
+			socket.connect();
 		}
+		hasInitialized.current = true;
+		// }
 
 		hydrator().then(() => setShow(true));
 
 		const handleBeforeUnload = () => {
-			trpcVanilla.user.setUserOffline.query(); // ✅ again, use mutation
+			if (!isLoggedIn) return; // don't run if not logged in
+			console.log("disconnected");
+			trpcVanilla.user.setUserOffline.query();
 			socket.disconnect();
 		};
 
@@ -62,7 +68,7 @@ const Wrapper = (props: Props) => {
 			handleBeforeUnload(); // ensure cleanup on component unmount too
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
-	}, []);
+	}, [isLoggedIn]);
 
 	return show ? (
 		<Provider>
