@@ -75,13 +75,7 @@ export default function MessageBox({
 							message.senderId == userId ? " text-[#0AD5C1]" : "text-[#0EC879]"
 						} `}
 					>
-						{message.deletionScope !== "ALL"
-							? message.message
-							: `${
-									message.senderId == userId
-										? "You deleted this message"
-										: "This message was deleted"
-							  }`}
+						{message.message}
 					</p>
 					<small className="self-end text-[0.6rem] pr-1 pb-1">{messageSentAt}</small>
 					{message.senderId == userId && (
@@ -144,14 +138,14 @@ export default function MessageBox({
 					>
 						<path d="M6 12L12 18L18 12" />
 					</svg>
-					<span
+					<div
 						className={
-							"absolute mt-0 bg-[#104f4f] opacity-100 z-50 rounded" +
+							"absolute mt-0 bg-[#104f4f] opacity-100 z-50 rounded w-[7.5rem]" +
 							`${message.senderId === userId ? " left-0" : " left-0"}` +
 							`${showOptions ? " border border-gray-400" : ""}`
 						}
 					>
-						{!(message.deletionScope === "ALL") && showOptions && (
+						{showOptions && (
 							<>
 								<button
 									className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
@@ -178,20 +172,19 @@ export default function MessageBox({
 											className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
 											title=""
 											onClick={(e) => {
-												console.log("clicked delete message", message);
 												deleteMessage.mutate({
 													message: message,
 													all: true,
 												});
 											}}
 										>
-											Delete for everyone
+											Delete for all
 										</button>
 									</>
 								)}
 							</>
 						)}
-					</span>
+					</div>
 				</div>
 				{message.senderId === userId ? (
 					<span className="absolute z-0 top-0 right-[-16px] border-b-[16px] border-l-[16px] border-b-transparent border-l-[rgba(25,147,147,0.2)] rounded-tr" />
