@@ -1,18 +1,24 @@
 import { trpc } from "@/app/_trpc/trpc";
 import { Message } from "@/constants/messageSchema";
+import { set } from "lodash";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 export default function MessageBox({
 	message,
 	userId,
 	handleSelfDeleteMessage,
+	handleEditMessage,
 }: {
 	message: Message;
 	userId: number;
 	handleSelfDeleteMessage: (message: Message) => void;
+	handleEditMessage: (data: { success: boolean; message: Message }) => void;
 }) {
 	const [showOptions, setShowOptions] = useState(false);
+	const [editMode, setEditMode] = useState(false);
+	const [messageText, setMessageText] = useState(message.message);
+	const [editMessageError, setEditMessageError] = useState<string | null>(null);
 
 	const optionsRef = useRef<HTMLDivElement>(null);
 
@@ -27,10 +33,25 @@ export default function MessageBox({
 		},
 	});
 
+	const editMessage = trpc.message.editMessage.useMutation({
+		onSuccess: (data) => {
+			if (data.success) {
+				console.log("message edited successfully");
+				handleEditMessage({ success: true, message: { ...message, message: messageText } });
+				setEditMode(false);
+			} else {
+				console.log(data);
+				setEditMessageError("Edit failed, Try again!");
+				console.log("message not edited");
+			}
+		},
+	});
+
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (optionsRef.current && !optionsRef.current.contains(event.target as Node)) {
 				setShowOptions(false);
+				// setEditMode(false);
 			}
 		};
 
@@ -38,6 +59,7 @@ export default function MessageBox({
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape") {
 				setShowOptions(false);
+				setEditMode(false);
 			}
 		};
 
@@ -47,6 +69,8 @@ export default function MessageBox({
 			document.removeEventListener("keydown", handleKeyDown);
 		};
 	}, []);
+
+	// useEffect(() => {
 
 	function toggleShowOption(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		e.preventDefault();
@@ -70,13 +94,69 @@ export default function MessageBox({
 				}
 			>
 				<div className="flex z-0">
-					<p
-						className={`py-1 pr-2 text-lg pl-2 ${
-							message.senderId == userId ? " text-[#0AD5C1]" : "text-[#0EC879]"
-						} `}
-					>
-						{message.message}
-					</p>
+					{!editMode ? (
+						<p
+							className={`py-1 pr-2 text-lg pl-2 ${
+								message.senderId == userId ? " text-[#0AD5C1]" : "text-[#0EC879]"
+							} `}
+						>
+							{message.message}
+						</p>
+					) : (
+						<form>
+							<small className="text-red-500 text-xs font-semibold">
+								{editMessageError && editMessageError}
+							</small>
+							<input
+								type="text"
+								id="editMsg"
+								value={messageText}
+								onChange={(e) => {
+									setMessageText(e.target.value);
+									setEditMessageError(null);
+								}}
+								className="bg-transparent text-[#0AD5C1] px-2 py-1 rounded border-none focus:outline-none"
+								placeholder="Edit message"
+								autoFocus={true}
+								// onBlur={(e) => {
+								// 	setEditMode(false);
+								// 	setMessageText(message.message);
+								// }}
+							/>
+							<button
+								type="submit"
+								className="text-[#0AD5C1] text-xs font-semibold"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									console.log("clicked save message");
+									if (messageText.length < 1) {
+										setEditMessageError("Message cannot be empty");
+										return;
+									}
+									editMessage.mutate({
+										message: messageText,
+										messageId: message.id,
+										editedAt: new Date(),
+									});
+								}}
+							>
+								Save
+							</button>
+							<button
+								type="button"
+								className="text-[#0AD5C1] text-xs font-semibold ml-4"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									setEditMode(false);
+									setMessageText(message.message);
+								}}
+							>
+								Cancel
+							</button>
+						</form>
+					)}
 					<small className="self-end text-[0.6rem] pr-1 pb-1">{messageSentAt}</small>
 					{message.senderId == userId && (
 						<div className="self-end text-xs pb-1">
@@ -165,6 +245,13 @@ export default function MessageBox({
 										<button
 											className="block px-2 pb-1 hover:bg-[rgba(25,147,147,0.2)] w-full text-left"
 											title=""
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												setShowOptions(false);
+												setMessageText(message.message);
+												setEditMode(true);
+											}}
 										>
 											Edit
 										</button>

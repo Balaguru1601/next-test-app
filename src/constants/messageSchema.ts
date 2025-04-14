@@ -19,6 +19,7 @@ export const MessageSchema = z.object({
 	deletedBy: z.number().nullable().default(null),
 	deletedAt: z.string().nullable().default(null),
 	deletionScope: z.enum(["ALL", "SELF"]).nullable().default(null),
+	editedAt: z.string().nullable().default(null),
 });
 
 export type Message = z.TypeOf<typeof MessageSchema>;

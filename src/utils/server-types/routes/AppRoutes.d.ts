@@ -404,6 +404,7 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                     deletedBy?: number | null | undefined;
                     deletedAt?: string | null | undefined;
                     deletionScope?: "SELF" | "ALL" | null | undefined;
+                    editedAt?: string | null | undefined;
                 } | undefined;
             };
             _output_out: {
@@ -419,6 +420,7 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                     receivedAt: string | null;
                     deletionScope: "SELF" | "ALL" | null;
                     deletedAt: string | null;
+                    editedAt: string | null;
                     chatId: string;
                     deletedBy: number | null;
                 } | undefined;
@@ -513,6 +515,7 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                         deletedBy?: number | null | undefined;
                         deletedAt?: string | null | undefined;
                         deletionScope?: "SELF" | "ALL" | null | undefined;
+                        editedAt?: string | null | undefined;
                     }[];
                 }[] | undefined;
             };
@@ -532,6 +535,7 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                         receivedAt: string | null;
                         deletionScope: "SELF" | "ALL" | null;
                         deletedAt: string | null;
+                        editedAt: string | null;
                         chatId: string;
                         deletedBy: number | null;
                     }[];
@@ -628,6 +632,7 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                     deletedBy?: number | null | undefined;
                     deletedAt?: string | null | undefined;
                     deletionScope?: "SELF" | "ALL" | null | undefined;
+                    editedAt?: string | null | undefined;
                 };
                 all: boolean;
             };
@@ -642,10 +647,53 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                     receivedAt: string | null;
                     deletionScope: "SELF" | "ALL" | null;
                     deletedAt: string | null;
+                    editedAt: string | null;
                     chatId: string;
                     deletedBy: number | null;
                 };
                 all: boolean;
+            };
+            _output_in: {
+                message: string;
+                success: boolean;
+            };
+            _output_out: {
+                message: string;
+                success: boolean;
+            };
+        }, unknown>;
+        editMessage: import("@trpc/server").BuildProcedure<"mutation", {
+            _config: import("@trpc/server").RootConfig<{
+                ctx: {
+                    req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                    res: import("ws") | import("express").Response<any, Record<string, any>>;
+                };
+                meta: object;
+                errorShape: import("@trpc/server").DefaultErrorShape;
+                transformer: typeof import("superjson").default;
+            }>;
+            _meta: object;
+            _ctx_out: {
+                req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("express").Response<any, Record<string, any>>;
+                user: {
+                    id: number;
+                    email: string;
+                    username: string;
+                    password: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
+            };
+            _input_in: {
+                message: string;
+                editedAt: Date;
+                messageId: string;
+            };
+            _input_out: {
+                message: string;
+                editedAt: Date;
+                messageId: string;
             };
             _output_in: {
                 message: string;
