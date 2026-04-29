@@ -5,7 +5,6 @@ import { Message } from "@/constants/messageSchema";
 import { useZStore } from "@/store/zustand";
 import React, { useEffect, useRef, useState } from "react";
 import Loader from "../Loader";
-import Image from "next/image";
 import moment from "moment";
 import ChatInput from "./ChatInput";
 import MessageBox from "./MessageBox";
@@ -13,13 +12,9 @@ import { EventTypes, socket } from "@/app/_socket/socket";
 
 type Props = {
 	recipientId: number;
+	recipientName: string;
+	onBack: () => void;
 };
-
-// TODO - change the way we get messages, get all messages rather than individual chat
-// TODO - make the message options to work
-// TODO - use onmessagedelete and onmessageupdate to update the message in the chat - socket.io
-// TODO - add typing to the chat input
-// TODO - add emoji picker to the chat input
 
 const handleNewMessage = (
 	data: Message,
@@ -33,12 +28,9 @@ const handleNewMessage = (
 	>,
 	chatId?: string
 ) => {
-	console.log("📨 incoming message : ", data);
 	setMsgList((prev) => {
 		if (!chatId || data.chatId !== chatId) return prev;
 		const t = [...prev];
-		// find the index of the date in the msgList
-		// if the date exists, add the message to the messages array
 		const dateIndex = t.findIndex((item) =>
 			moment.utc(data.sentAt).local().isSame(item.date, "date")
 		);
@@ -55,7 +47,6 @@ const handleNewMessage = (
 				messages: [data],
 			});
 		}
-
 		return t;
 	});
 };
@@ -72,17 +63,14 @@ const handleAllDeleteMessage = (
 	>,
 	chatId?: string
 ) => {
-	console.log("📨 - all message  deleted : ", data);
 	const { message } = data;
 	if (!data.success) return;
-
 	setMsgList((prev) => {
 		if (!chatId || message.chatId !== chatId) return prev;
 		const t = [...prev];
 		const dateIndex = t.findIndex((item) =>
 			moment.utc(message.sentAt).local().isSame(item.date, "date")
 		);
-
 		if (dateIndex > -1) {
 			const msgIndex = t[dateIndex].messages.findIndex((item) => item.id === message.id);
 			if (msgIndex > -1) {
@@ -110,7 +98,6 @@ const handleEditMessage = (
 ) => {
 	if (!data.success) return;
 	const { message } = data;
-	console.log("📨 - message edited : ", data);
 	setMsgList((prev) => {
 		if (!chatId || message.chatId !== chatId) return prev;
 		const t = [...prev];
@@ -139,14 +126,12 @@ const handleSelfDeleteMessage = (
 	>,
 	chatId?: string
 ) => {
-	console.log("📨 message deleted : ", data);
 	setMsgList((prev) => {
 		if (!chatId || data.chatId !== chatId) return prev;
 		const t = [...prev];
 		const dateIndex = t.findIndex((item) =>
 			moment.utc(data.sentAt).local().isSame(item.date, "date")
 		);
-
 		if (dateIndex > -1) {
 			const msgIndex = t[dateIndex].messages.findIndex((item) => item.id === data.id);
 			if (msgIndex > -1) {
@@ -160,7 +145,16 @@ const handleSelfDeleteMessage = (
 	});
 };
 
-function ChatLayer({ recipientId }: Props) {
+function getInitials(name: string) {
+	return name
+		.split(" ")
+		.map((n) => n[0])
+		.join("")
+		.slice(0, 2)
+		.toUpperCase();
+}
+
+function ChatLayer({ recipientId, recipientName, onBack }: Props) {
 	const [loading, setLoading] = useState(true);
 	const [resetScroller, setResetScroller] = useState(false);
 	const [msgList, setMsgList] = useState<{ date: Date; messages: Message[] }[]>([]);
@@ -173,8 +167,11 @@ function ChatLayer({ recipientId }: Props) {
 	const chatRef = useRef<HTMLDivElement>(null);
 
 	const chatData = trpc.message.loadIndividualChat.useMutation();
+
 	useEffect(() => {
 		setLoading(true);
+		setMsgList([]);
+		setChat(null);
 		chatData.mutate(
 			{ recipientId },
 			{
@@ -183,16 +180,11 @@ function ChatLayer({ recipientId }: Props) {
 						setChat({ chatId: data.chatId, messages: data.messages });
 						setMsgList(data.messages);
 						toggleResetScroller();
-						console.log("chat data", data.messages);
-						console.log("chat data hydrated");
 					}
 					setLoading(false);
-					return;
 				},
-				onError: (data) => {
-					console.log(data);
+				onError: () => {
 					setLoading(false);
-					return;
 				},
 			}
 		);
@@ -207,95 +199,15 @@ function ChatLayer({ recipientId }: Props) {
 	const userId = useZStore().user.userId!;
 
 	useEffect(() => {
-		// console.log("effect for handle msgs");
-		// const handleNewMessage = (data: Message) => {
-		// 	console.log("📨 incoming message : ", data);
-		// 	setMsgList((prev) => {
-		// 		if (!chat || data.chatId !== chat.chatId) return prev;
-		// 		const t = [...prev];
-		// 		// find the index of the date in the msgList
-		// 		// if the date exists, add the message to the messages array
-		// 		const dateIndex = t.findIndex((item) =>
-		// 			moment.utc(data.sentAt).local().isSame(item.date, "date")
-		// 		);
-		// 		if (dateIndex > -1) {
-		// 			if (!t[dateIndex].messages.find((item) => item.id === data.id)) {
-		// 				t.splice(dateIndex, 1, {
-		// 					date: prev[dateIndex].date,
-		// 					messages: [...prev[dateIndex].messages, data],
-		// 				});
-		// 			}
-		// 		} else {
-		// 			t.push({
-		// 				date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
-		// 				messages: [data],
-		// 			});
-		// 		}
-
-		// 		return t;
-		// 	});
-		// 	toggleResetScroller();
-		// };
 		socket.on(EventTypes.SEND_MESSAGE, (data: Message) =>
 			handleNewMessage(data, setMsgList, chat?.chatId)
 		);
-
-		// const handleAllDeleteMessage = (data: { success: boolean; message: Message }) => {
-		// 	console.log("📨 - all message  deleted : ", data);
-		// 	const { message } = data;
-		// 	if (!data.success) return;
-
-		// 	setMsgList((prev) => {
-		// 		if (!chat || message.chatId !== chat.chatId) return prev;
-		// 		const t = [...prev];
-		// 		const dateIndex = t.findIndex((item) =>
-		// 			moment.utc(message.sentAt).local().isSame(item.date, "date")
-		// 		);
-
-		// 		if (dateIndex > -1) {
-		// 			const msgIndex = t[dateIndex].messages.findIndex(
-		// 				(item) => item.id === message.id
-		// 			);
-		// 			if (msgIndex > -1) {
-		// 				t[dateIndex].messages.splice(msgIndex, 1);
-		// 			}
-		// 			if (t[dateIndex].messages.length === 0) {
-		// 				t.splice(dateIndex, 1);
-		// 			}
-		// 		}
-		// 		return t;
-		// 	});
-		// };
 		socket.on(EventTypes.DETELE_MESSAGE, (data: { success: boolean; message: Message }) =>
 			handleAllDeleteMessage(data, setMsgList, chat?.chatId)
 		);
-
-		// const handleEditMessage = (data: { success: boolean; message: Message }) => {
-		// 	if (!data.success) return;
-		// 	const { message } = data;
-		// 	console.log("📨 - message edited : ", data);
-		// 	setMsgList((prev) => {
-		// 		if (!chat || message.chatId !== chat.chatId) return prev;
-		// 		const t = [...prev];
-		// 		const dateIndex = t.findIndex((item) =>
-		// 			moment.utc(message.sentAt).local().isSame(item.date, "date")
-		// 		);
-		// 		if (dateIndex > -1) {
-		// 			const msgIndex = t[dateIndex].messages.findIndex(
-		// 				(item) => item.id === message.id
-		// 			);
-		// 			if (msgIndex > -1) {
-		// 				t[dateIndex].messages[msgIndex] = message;
-		// 			}
-		// 		}
-		// 		return t;
-		// 	});
-		// };
 		socket.on(EventTypes.EDIT_MESSAGE, (data: { success: boolean; message: Message }) =>
 			handleEditMessage(data, setMsgList, chat?.chatId)
 		);
-
-		// Cleanup on unmount
 		return () => {
 			socket.off(EventTypes.SEND_MESSAGE, handleNewMessage);
 			socket.off(EventTypes.DETELE_MESSAGE, handleAllDeleteMessage);
@@ -303,96 +215,56 @@ function ChatLayer({ recipientId }: Props) {
 		};
 	}, [chat]);
 
-	// const handleSelfDeleteMessage = (data: Message) => {
-	// 	console.log("📨 message deleted : ", data);
-	// 	setMsgList((prev) => {
-	// 		if (!chat || data.chatId !== chat.chatId) return prev;
-	// 		const t = [...prev];
-	// 		const dateIndex = t.findIndex((item) =>
-	// 			moment.utc(data.sentAt).local().isSame(item.date, "date")
-	// 		);
-
-	// 		if (dateIndex > -1) {
-	// 			const msgIndex = t[dateIndex].messages.findIndex((item) => item.id === data.id);
-	// 			if (msgIndex > -1) {
-	// 				t[dateIndex].messages.splice(msgIndex, 1);
-	// 			}
-	// 			if (t[dateIndex].messages.length === 0) {
-	// 				t.splice(dateIndex, 1);
-	// 			}
-	// 		}
-	// 		return t;
-	// 	});
-	// };
-
-	// const handleEditMessage = (data: Message) => {
-	//     console.log("📨 message edited : ", data)
-	//     setMsgList((prev) => {
-	//         if (!chat || data.chatId !== chat.chatId) return prev;
-	//         const t = [...prev];
-	//         const dateIndex = t.findIndex((item) =>
-	//             moment.utc(data.sentAt).local().isSame(item.date, "date")
-	//         );
-	//         if (dateIndex > -1) {
-	//             const msgIndex = t[dateIndex].messages.findIndex((item) => item.id === data.id);
-	//             if (msgIndex > -1) {
-	//                 t[dateIndex].messages[msgIndex] = data;
-	//             }
-	//         }
-	//         return t;
-	//     });
-	// };
-
-	//     };
-
-	// trpc.message.onSendMessage.useSubscription(undefined, {
-	// 	onData: (data) => {
-	// 		console.log("message", data.message);
-	// 		let dateIndex = msgList.findIndex((item) =>
-	// 			moment.utc(data.sentAt).local().isSame(item.date, "date")
-	// 		);
-	// 		if (dateIndex > -1) {
-	// 			if (!msgList[msgList.length - 1].messages.find((item) => item.id === data.id)) {
-	// 				setMsgList((prev) => {
-	// 					const t = [...prev];
-	// 					t.splice(dateIndex, 1, {
-	// 						date: prev[dateIndex].date,
-	// 						messages: [...prev[dateIndex].messages, data],
-	// 					});
-	// 					return t;
-	// 				});
-	// 				setResetScroller((prev) => !prev);
-	// 			}
-	// 		} else {
-	// 			setMsgList((prev) => [
-	// 				...prev,
-	// 				{
-	// 					date: new Date(new Date(data.sentAt).setHours(0, 0, 0, 0)),
-	// 					messages: [data],
-	// 				},
-	// 			]);
-	// 		}
-	// 	},
-	// });
-
 	return (
-		<div className="">
+		<div className="flex flex-col h-full">
+			{/* Chat header */}
+			<div className="flex items-center gap-3 px-4 py-3 border-b border-[rgba(25,147,147,0.3)] bg-[rgba(0,0,0,0.25)] flex-shrink-0">
+				<button
+					onClick={onBack}
+					className="p-1 rounded hover:bg-[rgba(25,147,147,0.2)] transition-colors text-[rgba(10,213,193,0.6)] hover:text-[#0AD5C1]"
+					title="Back"
+				>
+					<svg
+						className="w-5 h-5"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						strokeWidth={2}
+					>
+						<path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+					</svg>
+				</button>
+				<div className="w-9 h-9 rounded-full bg-teal-700 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+					{getInitials(recipientName)}
+				</div>
+				<div>
+					<p className="text-[#0AD5C1] font-semibold leading-tight">{recipientName}</p>
+				</div>
+			</div>
+
+			{/* Messages area */}
 			{loading ? (
-				<div className="text-center">
+				<div className="flex-1 flex items-center justify-center">
 					<Loader />
 				</div>
 			) : (
 				<>
-					<ul className="list-none overflow-y-scroll chat-scrollbar pr-2 sm:p-4 sm:px-8  md:px-12 pb-0 max-h-[80vh]">
+					<ul className="flex-1 list-none overflow-y-scroll chat-scrollbar px-4 sm:px-8 md:px-12 py-4 space-y-0">
+						{msgList.length === 0 && (
+							<li className="flex items-center justify-center h-full pt-16">
+								<p className="text-[rgba(10,213,193,0.3)] text-sm">
+									No messages yet. Say hello!
+								</p>
+							</li>
+						)}
 						{msgList.map((messagedByDate) => {
-							// console.log("messagedByDate", messagedByDate);
 							const messages = messagedByDate.messages.map((msg) => {
 								if (msg.deletedBy !== userId && msg.deletionScope !== "ALL")
 									return (
 										<MessageBox
 											message={msg}
 											userId={userId}
-											key={Math.random()}
+											key={msg.id}
 											handleSelfDeleteMessage={(data) =>
 												handleSelfDeleteMessage(
 													data,
@@ -406,13 +278,13 @@ function ChatLayer({ recipientId }: Props) {
 										/>
 									);
 							});
-							if (messages.length)
+							if (messages.filter(Boolean).length)
 								return (
-									<div className="" key={Math.random()}>
-										<p className="text-center my-4">
+									<div key={messagedByDate.date.toString()}>
+										<p className="text-center text-xs text-[rgba(10,213,193,0.45)] my-4 font-medium tracking-wider uppercase">
 											{moment(messagedByDate.date).isSame(moment(), "D")
-												? "TODAY"
-												: moment(messagedByDate.date).format("Do MMM YY")}
+												? "Today"
+												: moment(messagedByDate.date).format("Do MMM YYYY")}
 										</p>
 										{messages}
 									</div>
@@ -420,15 +292,14 @@ function ChatLayer({ recipientId }: Props) {
 						})}
 						<div ref={chatRef} />
 					</ul>
-					<div className="pr-4">
-						<ChatInput
-							recipientId={recipientId}
-							chatId={chat?.chatId}
-							msgList={msgList}
-							setMsgList={setMsgList}
-							resetScroller={toggleResetScroller}
-						/>
-					</div>
+
+					<ChatInput
+						recipientId={recipientId}
+						chatId={chat?.chatId}
+						msgList={msgList}
+						setMsgList={setMsgList}
+						resetScroller={toggleResetScroller}
+					/>
 				</>
 			)}
 		</div>
