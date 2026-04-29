@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Loader from "../Loader";
 import { useZStore } from "@/store/zustand";
 import { trpc } from "@/app/_trpc/trpc";
@@ -26,6 +26,7 @@ type Props = {
 function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: Props) {
 	const [newMessage, setNewMessage] = useState("");
 	const [sendingMessage, setSendingMessage] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const sendMessage = trpc.message.sendIndividualMessage.useMutation({
 		onSettled: () => setSendingMessage(false),
@@ -60,8 +61,10 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 							messages: [data.chat!],
 						},
 					]);
+					resetScroller();
 				}
 				setNewMessage("");
+				inputRef.current?.focus();
 			}
 		},
 	});
@@ -76,27 +79,34 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 				senderId: userId,
 				recipientId,
 				chatId: chatId,
+				sentAt: new Date().toISOString(),
 			});
 		}
 	};
+
 	return (
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
-				if (newMessage.length > 0) messageHandler(newMessage);
+				if (newMessage.trim().length > 0) messageHandler(newMessage.trim());
 			}}
+			className="border-t border-[rgba(25,147,147,0.3)] bg-[rgba(0,0,0,0.2)]"
 		>
-			<div className="sm:pr-20 pr-10 pl-4 relative">
+			<div className="flex items-center gap-2 px-4 py-3">
 				<input
+					ref={inputRef}
 					type="text"
-					placeholder="Send message"
-					className="rounded p-2 w-full text-lg focus:outline-none border-none bg-transparent inline-block text-[#0AD5C1]"
+					placeholder="Type a message..."
+					className="flex-1 rounded-full px-4 py-2 text-base focus:outline-none border border-[rgba(25,147,147,0.4)] bg-[rgba(25,147,147,0.08)] text-[#0AD5C1] placeholder:text-[rgba(10,213,193,0.35)] focus:border-[rgba(25,147,147,0.7)] transition-colors"
 					value={newMessage}
 					onChange={(e) => setNewMessage(e.target.value)}
+					autoFocus
 				/>
 				<button
-					disabled={sendingMessage}
-					className="py-2 text-center border-white sm:px-3 px-2 rounded absolute hover:bg-gray-800"
+					type="submit"
+					disabled={sendingMessage || newMessage.trim().length === 0}
+					className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-[rgba(25,147,147,0.5)] hover:bg-[rgba(25,147,147,0.7)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+					title="Send message"
 				>
 					{sendingMessage ? (
 						<Loader />
@@ -104,11 +114,10 @@ function ChatInput({ msgList, setMsgList, chatId, recipientId, resetScroller }: 
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="#0AD5C1"
-							className="w-8 h-8 "
+							className="w-5 h-5"
 							viewBox="0 0 24 24"
 						>
 							<path d="M2 21l20-9L2 3v7l15 2-15 2z" />
-							<path d="M0 0h24v24H0z" fill="none" />
 						</svg>
 					)}
 				</button>
