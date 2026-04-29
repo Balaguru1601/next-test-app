@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<html lang="en">
 			<Script src="https://accounts.google.com/gsi/client" async defer />
-			<body className="max-w-full min-h-screen">
+			<body className="max-w-full min-h-screen m-0">
 				<Wrapper>{children}</Wrapper>
 			</body>
 		</html>

@@ -1,5 +1,5 @@
 "use client";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "../../_trpc/trpc";
@@ -8,7 +8,7 @@ type Props = {};
 
 const Login = (props: Props) => {
 	const router = useRouter();
-	const { login } = useAuthStore();
+	const { login } = useZStore().user;
 	const [showError, setShowError] = useState<string | null>(null);
 	const loginUser = trpc.user.login.useMutation({
 		onSuccess: (data) => {
@@ -41,7 +41,11 @@ const Login = (props: Props) => {
 	return (
 		<div className="bg-[#272829] p-10 text-center">
 			<h1>Login</h1>
-			<strong className={"block my-2 text-sm text-red-500  " + `${showError ? "visible" : "invisible"} `}>
+			<strong
+				className={
+					"block my-2 text-sm text-red-500  " + `${showError ? "visible" : "invisible"} `
+				}
+			>
 				{showError || "error"}
 			</strong>
 			<div className="inline-block">

@@ -2,7 +2,6 @@
 
 import ChatLayer from "@/Components/Chat/ChatLayer";
 import ChatSidebar from "@/Components/Chat/ChatSidebar";
-import Loader from "@/Components/Loader";
 import { trpc } from "@/app/_trpc/trpc";
 import { useCallback, useEffect, useState } from "react";
 
@@ -10,65 +9,61 @@ type Props = {};
 
 function Page({}: Props) {
 	const { data, isLoading } = trpc.message.getAllChats.useQuery();
-	const { data: onlineUsers } = trpc.user.getOnlineUsers.useQuery();
-	const [loading, setLoading] = useState(true);
-	// console.log(onlineUsers);
-	// const [chatData, setChatData] = useState<
-	// 	| {
-	// 			user: {
-	// 				id: number;
-	// 				email: string;
-	// 				username: string;
-	// 			};
-	// 			id: string;
-	// 			createdAt: Date;
-	// 			updatedAt: Date;
-	// 	  }[]
-	// 	| null
-	// >(null);
-	const [currentChatWith, setCurrentChatWith] = useState<number>();
+	const [currentChatWith, setCurrentChatWith] = useState<
+		{ id: number; username: string } | undefined
+	>();
 
-	useEffect(() => {
-		console.log("chat change");
-	}, [currentChatWith]);
-
-	const togglePlayer = useCallback((event: KeyboardEvent) => {
+	const closeChat = useCallback((event: KeyboardEvent) => {
 		if (event.key !== "Escape") return;
 		setCurrentChatWith(undefined);
 	}, []);
 
 	useEffect(() => {
-		window.addEventListener("keydown", togglePlayer);
-		return () => window.removeEventListener("keydown", togglePlayer);
-	}, [togglePlayer]);
-
-	// useEffect(() => {
-	// 	console.log("effect");
-	// 	if (data?.chats) {
-	// 		console.log("in");
-	// 		// setChatData(data.chats);
-	// 		setLoading(false);
-	// 	}
-	// }, []);
-
-	// TODO - get all the messages of the user here and set it to the chatData state
-	// TODO - Show users are online and offline
-	// TODO - track last seen of the user
-	// TODO - add a search bar to search for users
+		window.addEventListener("keydown", closeChat);
+		return () => window.removeEventListener("keydown", closeChat);
+	}, [closeChat]);
 
 	return (
-		<div className="pb-4 h-[80vh]">
-			<div
-				className="grid grid-cols-[1fr_2fr] "
-				// onKeyDown={(e) => console.log(e.key)}
-			>
+		<div className="h-[calc(100vh-48px)]">
+			<div className="grid grid-cols-[280px_1fr] h-full">
 				<ChatSidebar
 					isLoading={isLoading}
-					setCurrentChatWith={(t) => setCurrentChatWith(t)}
+					setCurrentChatWith={(id, username) => setCurrentChatWith({ id, username })}
 					chats={data?.chats}
+					activeUserId={currentChatWith?.id}
 				/>
-				<div className=" bg-no-repeat bg-fixed m-0 bg-chat-bg p-2 sm:p-4">
-					{currentChatWith ? <ChatLayer recipientId={currentChatWith} /> : null}
+				<div className="bg-chat-bg flex flex-col h-full overflow-hidden">
+					{currentChatWith ? (
+						<ChatLayer
+							recipientId={currentChatWith.id}
+							recipientName={currentChatWith.username}
+							onBack={() => setCurrentChatWith(undefined)}
+						/>
+					) : (
+						<div className="flex-1 flex items-center justify-center">
+							<div className="text-center select-none">
+								<svg
+									className="w-16 h-16 mx-auto text-[rgba(10,213,193,0.2)] mb-4"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={1}
+										d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+									/>
+								</svg>
+								<p className="text-[rgba(10,213,193,0.4)] text-lg font-medium">
+									Select a conversation
+								</p>
+								<p className="text-[rgba(10,213,193,0.25)] text-sm mt-1">
+									Choose from your chats on the left
+								</p>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

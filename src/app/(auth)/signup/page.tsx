@@ -3,7 +3,6 @@ import { useZStore } from "@/store/zustand";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trpc } from "@/app/_trpc/trpc";
-import Link from "next/link";
 import Loader from "@/Components/Loader";
 
 type Props = {};
