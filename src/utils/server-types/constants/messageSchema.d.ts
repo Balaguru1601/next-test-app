@@ -14,16 +14,19 @@ export declare const SendMessageInput: z.ZodObject<{
     chatId: z.ZodString;
     senderId: z.ZodNumber;
     recipientId: z.ZodNumber;
+    sentAt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     message: string;
     recipientId: number;
     senderId: number;
     chatId: string;
+    sentAt?: string | undefined;
 }, {
     message: string;
     recipientId: number;
     senderId: number;
     chatId: string;
+    sentAt?: string | undefined;
 }>;
 export declare const createChatInput: z.ZodObject<{
     recipientId: z.ZodNumber;

@@ -382,12 +382,14 @@ export declare const appRouter: import("@trpc/server").CreateRouterInner<import(
                 recipientId: number;
                 senderId: number;
                 chatId: string;
+                sentAt?: string | undefined;
             };
             _input_out: {
                 message: string;
                 recipientId: number;
                 senderId: number;
                 chatId: string;
+                sentAt?: string | undefined;
             };
             _output_in: {
                 message: string;

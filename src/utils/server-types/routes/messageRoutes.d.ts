@@ -39,12 +39,14 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             recipientId: number;
             senderId: number;
             chatId: string;
+            sentAt?: string | undefined;
         };
         _input_out: {
             message: string;
             recipientId: number;
             senderId: number;
             chatId: string;
+            sentAt?: string | undefined;
         };
         _output_in: {
             message: string;
