@@ -39,12 +39,14 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
             recipientId: number;
             senderId: number;
             chatId: string;
+            sentAt?: string | undefined;
         };
         _input_out: {
             message: string;
             recipientId: number;
             senderId: number;
             chatId: string;
+            sentAt?: string | undefined;
         };
         _output_in: {
             message: string;
@@ -56,8 +58,12 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
                 sentAt: string;
                 senderId: number;
                 viewed: boolean;
-                receivedAt: string | null;
                 chatId: string;
+                receivedAt?: string | null | undefined;
+                deletedBy?: number | null | undefined;
+                deletedAt?: string | null | undefined;
+                deletionScope?: "SELF" | "ALL" | null | undefined;
+                editedAt?: string | null | undefined;
             } | undefined;
         };
         _output_out: {
@@ -71,8 +77,54 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
                 senderId: number;
                 viewed: boolean;
                 receivedAt: string | null;
+                deletionScope: "SELF" | "ALL" | null;
+                deletedAt: string | null;
+                editedAt: string | null;
                 chatId: string;
+                deletedBy: number | null;
             } | undefined;
+        };
+    }, unknown>;
+    createChat: import("@trpc/server").BuildProcedure<"mutation", {
+        _config: import("@trpc/server").RootConfig<{
+            ctx: {
+                req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
+            };
+            meta: object;
+            errorShape: import("@trpc/server").DefaultErrorShape;
+            transformer: typeof import("superjson").default;
+        }>;
+        _meta: object;
+        _ctx_out: {
+            req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+            res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+        };
+        _input_in: {
+            recipientId: number;
+        };
+        _input_out: {
+            recipientId: number;
+        };
+        _output_in: {
+            message: string;
+            success: boolean;
+            recipientId?: number | undefined;
+            chatId?: string | undefined;
+        };
+        _output_out: {
+            message: string;
+            success: boolean;
+            recipientId?: number | undefined;
+            chatId?: string | undefined;
         };
     }, unknown>;
     loadIndividualChat: import("@trpc/server").BuildProcedure<"mutation", {
@@ -119,6 +171,10 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
                     viewed: boolean;
                     chatId: string;
                     receivedAt?: string | null | undefined;
+                    deletedBy?: number | null | undefined;
+                    deletedAt?: string | null | undefined;
+                    deletionScope?: "SELF" | "ALL" | null | undefined;
+                    editedAt?: string | null | undefined;
                 }[];
             }[] | undefined;
         };
@@ -136,40 +192,15 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
                     senderId: number;
                     viewed: boolean;
                     receivedAt: string | null;
+                    deletionScope: "SELF" | "ALL" | null;
+                    deletedAt: string | null;
+                    editedAt: string | null;
                     chatId: string;
+                    deletedBy: number | null;
                 }[];
             }[] | undefined;
         };
     }, unknown>;
-    onSendMessage: import("@trpc/server").BuildProcedure<"subscription", {
-        _config: import("@trpc/server").RootConfig<{
-            ctx: {
-                req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
-                res: import("ws") | import("express").Response<any, Record<string, any>>;
-            };
-            meta: object;
-            errorShape: import("@trpc/server").DefaultErrorShape;
-            transformer: typeof import("superjson").default;
-        }>;
-        _meta: object;
-        _ctx_out: {
-            req: import("http").IncomingMessage;
-            res: import("ws");
-        };
-        _input_in: typeof import("@trpc/server").unsetMarker;
-        _input_out: typeof import("@trpc/server").unsetMarker;
-        _output_in: typeof import("@trpc/server").unsetMarker;
-        _output_out: typeof import("@trpc/server").unsetMarker;
-    }, import("@trpc/server/observable").Observable<{
-        id: string;
-        message: string;
-        recipientId: number;
-        sentAt: string;
-        senderId: number;
-        viewed: boolean;
-        receivedAt: string | null;
-        chatId: string;
-    }, unknown>>;
     getAllChats: import("@trpc/server").BuildProcedure<"query", {
         _config: import("@trpc/server").RootConfig<{
             ctx: {
@@ -222,6 +253,114 @@ export declare const messageRouter: import("@trpc/server").CreateRouterInner<imp
                 createdAt: Date;
                 updatedAt: Date;
             }[] | null | undefined;
+        };
+    }, unknown>;
+    deleteMessage: import("@trpc/server").BuildProcedure<"mutation", {
+        _config: import("@trpc/server").RootConfig<{
+            ctx: {
+                req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
+            };
+            meta: object;
+            errorShape: import("@trpc/server").DefaultErrorShape;
+            transformer: typeof import("superjson").default;
+        }>;
+        _meta: object;
+        _ctx_out: {
+            req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+            res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+        };
+        _input_in: {
+            message: {
+                id: string;
+                message: string;
+                recipientId: number;
+                sentAt: string;
+                senderId: number;
+                viewed: boolean;
+                chatId: string;
+                receivedAt?: string | null | undefined;
+                deletedBy?: number | null | undefined;
+                deletedAt?: string | null | undefined;
+                deletionScope?: "SELF" | "ALL" | null | undefined;
+                editedAt?: string | null | undefined;
+            };
+            all: boolean;
+        };
+        _input_out: {
+            message: {
+                id: string;
+                message: string;
+                recipientId: number;
+                sentAt: string;
+                senderId: number;
+                viewed: boolean;
+                receivedAt: string | null;
+                deletionScope: "SELF" | "ALL" | null;
+                deletedAt: string | null;
+                editedAt: string | null;
+                chatId: string;
+                deletedBy: number | null;
+            };
+            all: boolean;
+        };
+        _output_in: {
+            message: string;
+            success: boolean;
+        };
+        _output_out: {
+            message: string;
+            success: boolean;
+        };
+    }, unknown>;
+    editMessage: import("@trpc/server").BuildProcedure<"mutation", {
+        _config: import("@trpc/server").RootConfig<{
+            ctx: {
+                req: import("http").IncomingMessage | import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+                res: import("ws") | import("express").Response<any, Record<string, any>>;
+            };
+            meta: object;
+            errorShape: import("@trpc/server").DefaultErrorShape;
+            transformer: typeof import("superjson").default;
+        }>;
+        _meta: object;
+        _ctx_out: {
+            req: import("express").Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>;
+            res: import("express").Response<any, Record<string, any>>;
+            user: {
+                id: number;
+                email: string;
+                username: string;
+                password: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+        };
+        _input_in: {
+            message: string;
+            editedAt: Date;
+            messageId: string;
+        };
+        _input_out: {
+            message: string;
+            editedAt: Date;
+            messageId: string;
+        };
+        _output_in: {
+            message: string;
+            success: boolean;
+        };
+        _output_out: {
+            message: string;
+            success: boolean;
         };
     }, unknown>;
 }>;

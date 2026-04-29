@@ -1,47 +1,29 @@
 "use client";
-import { trpc, trpcVanilla } from "@/app/_trpc/trpc";
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { UserStore, createUserSlice } from "./userStore";
+import { ChatStore, createChatSlice } from "./chatStore";
+import { merge as deepmerge } from "lodash";
 
-interface AuthStore {
-	isLoggedIn: boolean;
-	username: string | null;
-	userId: number | null;
-	login: ({ username, userId }: { username: string; userId: number }) => void;
-	logout: () => void;
-	verify: () => void;
-}
+export type StoreType = UserStore & ChatStore;
 
-export const useAuthStore = create<AuthStore>()(
+export const useZStore = create<StoreType>()(
 	devtools(
 		persist(
-			(set, get) => ({
-				isLoggedIn: false,
-				username: null,
-				userId: null,
-				login: ({ username, userId }) =>
-					set((state) => ({
-						username,
-						isLoggedIn: true,
-						userId,
-					})),
-				logout: () =>
-					set((state) => ({
-						isLoggedIn: false,
-						username: null,
-						userId: null,
-					})),
-				verify: async () => {
-					try {
-						const response = await trpcVanilla.user.verify.query();
-						if (response && response.username)
-							get().login({ username: response.username, userId: response.userId });
-					} catch (e) {
-						get().logout();
-					}
-				},
+			(...a) => ({
+				...createChatSlice(...a),
+				...createUserSlice(...a),
 			}),
-			{ name: "auth-store", skipHydration: true }
+			{
+				name: "storage",
+				skipHydration: true,
+				partialize: (state) => ({ user: state.user }),
+				// storage: createJSONStorage(() => localStorage),
+				// partializing a slice does not rehydrade actions - a bug in zustand storing in local storage
+				merge: (persisted, current) => {
+					return deepmerge({}, current, persisted);
+				},
+			}
 		)
 	)
 );

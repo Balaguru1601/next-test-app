@@ -1,16 +1,15 @@
 "use client";
-import { useAuthStore } from "@/store/zustand";
+import { useZStore } from "@/store/zustand";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trpc } from "@/app/_trpc/trpc";
-import Link from "next/link";
 import Loader from "@/Components/Loader";
 
 type Props = {};
 
 const SignUp = (props: Props) => {
 	const router = useRouter();
-	const { login, isLoggedIn } = useAuthStore();
+	const { login, isLoggedIn } = useZStore().user;
 
 	const [username, setUsername] = useState<string | null>(null);
 	const [password, setPassword] = useState<string | null>(null);
@@ -50,6 +49,7 @@ const SignUp = (props: Props) => {
 	const loginUser = trpc.user.login.useMutation({
 		onSuccess: (data) => {
 			if (data.success && data.username && data.userId) {
+				console.log(data);
 				login({ username: data.username, userId: data.userId });
 				router.push("/secret");
 			} else if (data.success === false) {
@@ -63,7 +63,14 @@ const SignUp = (props: Props) => {
 	});
 
 	const registerHandler = () => {
-		if (username && username.length > 0 && email && email.length && password && password.length) {
+		if (
+			username &&
+			username.length > 0 &&
+			email &&
+			email.length &&
+			password &&
+			password.length
+		) {
 			setLoading(true);
 			registerUser.mutate({ username, email, password });
 		} else setShowRegisterError("All fields are required");
@@ -111,7 +118,10 @@ const SignUp = (props: Props) => {
 					Sign Up
 				</button>
 				<strong
-					className={"block my-2 text-sm text-red-500  " + `${showRegisterError ? "visible" : "invisible"} `}
+					className={
+						"block my-2 text-sm text-red-500  " +
+						`${showRegisterError ? "visible" : "invisible"} `
+					}
 				>
 					{showRegisterError || "error"}
 				</strong>
@@ -166,7 +176,9 @@ const SignUp = (props: Props) => {
 						disabled={!signUpMode}
 						onClick={toggleSignInMode}
 						className={` ${
-							signUpMode ? "text-xl mt-4 text-black font-semibold " : "mt-[10%] text-3xl "
+							signUpMode
+								? "text-xl mt-4 text-black font-semibold "
+								: "mt-[10%] text-3xl "
 						} transition-all ease-in delay-200`}
 					>
 						<span
@@ -179,7 +191,10 @@ const SignUp = (props: Props) => {
 						Log in
 					</button>
 					<strong
-						className={"block my-2 text-sm text-red-500  " + `${showLoginError ? "visible" : "invisible"} `}
+						className={
+							"block my-2 text-sm text-red-500  " +
+							`${showLoginError ? "visible" : "invisible"} `
+						}
 					>
 						{showLoginError || "error"}
 					</strong>
