@@ -1,6 +1,6 @@
 "use client";
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { UserStore, createUserSlice } from "./userStore";
 import { ChatStore, createChatSlice } from "./chatStore";
 import { merge as deepmerge } from "lodash";
@@ -18,7 +18,8 @@ export const useZStore = create<StoreType>()(
 				name: "storage",
 				skipHydration: true,
 				partialize: (state) => ({ user: state.user }),
-				// partializing a slice does not rehydrade actions - a bug in zustand itself
+				// storage: createJSONStorage(() => localStorage),
+				// partializing a slice does not rehydrade actions - a bug in zustand storing in local storage
 				merge: (persisted, current) => {
 					return deepmerge({}, current, persisted);
 				},
